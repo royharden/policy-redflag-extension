@@ -1,107 +1,115 @@
 import { useMemo, useState } from 'react';
 import {
+  ACME_TERMS_TEXT,
   analyze,
-  analyzeBaseline,
-  buildExtractionPrompt,
   CATEGORIES,
   CATEGORY_BY_ID,
-  compareBaselines,
-  completeChat,
-  completeOnDevice,
+  CORPUS,
   CORPUS_PROVENANCE,
-  defaultSettings,
+  deriveSections,
   formatRate,
+  fullCoverage,
+  itemErrorRejections,
   matchingRulebookId,
-  ModelRequestError,
-  parseModelFlags,
+  orderedCategories,
+  parseFlagsResponse,
+  reasonLabel,
   RECORDED_DRAFT,
   RULEBOOKS,
-  SAMPLE_FIXTURE,
+  RULES_VERSION,
+  scanStrict,
+  SEMANTIC_AUDIT_DRAFT,
   splitByRanges,
-  type AnalyzeResult,
   type CategoryId,
-  type ModelSettings,
+  type Finding,
+  type ScanResult,
 } from '../core';
 
+// The web lab never reads browser tabs and never runs live inference. It checks pasted or fixture
+// text with the same shared core the extension uses.
+
 const appName = import.meta.env.VITE_APP_NAME || 'Policy Red Flag';
-const sampleText = SAMPLE_FIXTURE?.text ?? '';
+
+/** Measured results exist only after scripts/evaluate.ts has run; until then this map is empty. */
+const measured = import.meta.glob('../../results/results.json', { eager: true, import: 'default' }) as Record<string, MeasuredResults>;
+
+interface MeasuredResults {
+  generatedAt: string;
+  split: string;
+  manifest: { sha256: string };
+  limitations: string[];
+  results: {
+    engine: string;
+    attempted: number;
+    scores: Record<string, { micro: { precision: number | null; recall: number | null; f1: number | null; support: number } }>;
+  }[];
+}
+
+const FIXTURES = [
+  { id: 'acme', label: 'ACME Cloud Notes terms (demo, all six categories)', text: ACME_TERMS_TEXT },
+  ...CORPUS.map((fixture) => ({ id: fixture.id, label: `Northwind smoke: ${fixture.title}`, text: fixture.text })),
+];
+
+type Mode = 'rules' | 'recorded' | 'semantic';
 
 export function App() {
-  const initial = defaultSettings();
-  const [text, setText] = useState(sampleText);
-  const [enabled, setEnabled] = useState<CategoryId[]>(initial.enabledCategoryIds);
-  const [rulebookId, setRulebookId] = useState(initial.rulebookId);
-  const [baseline, setBaseline] = useState<AnalyzeResult | null>(null);
+  const [text, setText] = useState(ACME_TERMS_TEXT);
+  const [revision, setRevision] = useState(0);
+  const [enabled, setEnabled] = useState<CategoryId[]>(CATEGORIES.map((category) => category.id));
   const [draftText, setDraftText] = useState(RECORDED_DRAFT);
-  const [draft, setDraft] = useState<AnalyzeResult | null>(null);
-  const [draftError, setDraftError] = useState<string | null>(null);
-  const [model, setModel] = useState<ModelSettings>(initial.model);
-  const [modelError, setModelError] = useState<string | null>(null);
-  const [modelResult, setModelResult] = useState<AnalyzeResult | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [buffer, setBuffer] = useState<AnalyzeResult | null>(null);
-  const report = useMemo(() => compareBaselines(), []);
+  const [mode, setMode] = useState<Mode>('rules');
+  const [fixtureId, setFixtureId] = useState('acme');
+  const [result, setResult] = useState<ScanResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const presetId = matchingRulebookId(enabled);
 
-  function applyRulebook(id: string) {
-    const book = RULEBOOKS.find((item) => item.id === id);
-    setRulebookId(id);
-    if (book) setEnabled([...book.categoryIds]);
+  const snapshot = useMemo(() => ({ scanId: `lab-${revision}`, revision, text, sections: deriveSections(text) }), [text, revision]);
+
+  // Paste edits or category changes invalidate the current view.
+  function invalidate() {
+    setResult(null);
+    setError(null);
   }
 
-  function toggleCategory(id: CategoryId) {
-    const next = enabled.includes(id) ? enabled.filter((item) => item !== id) : [...enabled, id];
-    setEnabled(next);
-    setRulebookId(matchingRulebookId(next));
+  function edit(next: string, fromFixture = '') {
+    setFixtureId(fromFixture);
+    setText(next);
+    setRevision((value) => value + 1);
+    invalidate();
   }
 
-  function scanBaseline() {
-    const result = analyzeBaseline(text, enabled);
-    setModelResult(null);
-    setModelError(null);
-    setBaseline(result);
-    setBuffer(result);
+  function setCategories(next: CategoryId[]) {
+    setEnabled(orderedCategories(next));
+    invalidate();
   }
 
-  function checkDraft() {
-    const parsed = parseModelFlags(draftText, 'recorded');
-    if (parsed.error) {
-      setDraft(null);
-      setDraftError(parsed.error);
+  function run(nextMode: Mode) {
+    setMode(nextMode);
+    setError(null);
+    const rules = scanStrict(text, enabled);
+    if (nextMode === 'rules') {
+      setResult(
+        analyze({ snapshot, enabledCategoryIds: enabled, candidates: rules, requestedEngines: ['rules'], coverage: [fullCoverage('rules', RULES_VERSION, text.length)] }).result,
+      );
       return;
     }
-    setDraftError(null);
-    const result = analyze({ text, enabledCategoryIds: enabled, candidates: parsed.candidates });
-    setDraft(result);
-    setBuffer(result);
-  }
-
-  async function runModel(mode: 'https' | 'on-device') {
-    setBusy(true);
-    setModelError(null);
-    setModelResult(null);
-    try {
-      const prompt = buildExtractionPrompt(text, enabled);
-      const raw =
-        mode === 'on-device'
-          ? await completeOnDevice(prompt)
-          : await completeChat({ endpoint: model.endpoint, apiKey: model.apiKey, model: model.model }, prompt);
-      const parsed = parseModelFlags(raw, 'model');
-      if (parsed.error) {
-        setModelError(parsed.error);
-        return;
-      }
-      const result = analyze({ text, enabledCategoryIds: enabled, candidates: parsed.candidates });
-      setModelResult(result);
-      setBuffer(result);
-    } catch (error) {
-      const message =
-        error instanceof ModelRequestError || error instanceof Error
-          ? error.message
-          : 'The model request failed. No flags were invented.';
-      setModelError(message);
-    } finally {
-      setBusy(false);
+    const raw = nextMode === 'semantic' ? SEMANTIC_AUDIT_DRAFT : draftText;
+    const parsed = parseFlagsResponse(raw, { engine: 'recorded', engineVersion: 'recorded/1', acceptOffsets: true });
+    if (!parsed.ok) {
+      setResult(null);
+      setError(`${parsed.code}: ${parsed.detail}`);
+      return;
     }
+    setResult(
+      analyze({
+        snapshot,
+        enabledCategoryIds: enabled,
+        candidates: [...rules, ...parsed.candidates],
+        extraRejections: itemErrorRejections(parsed.itemErrors, 'recorded'),
+        requestedEngines: ['rules', 'recorded'],
+        coverage: [fullCoverage('rules', RULES_VERSION, text.length), fullCoverage('recorded', 'recorded/1', text.length)],
+      }).result,
+    );
   }
 
   return (
@@ -110,21 +118,34 @@ export function App() {
         <p className="eyebrow">Terms and privacy</p>
         <h1>{appName}</h1>
         <p className="lede">
-          The baseline runs in this page. Each kept flag is a verbatim slice of the text, with character offsets.
-          A quote that is not in the text is dropped. A model runs only when you ask, and a missing key does not
-          invent flags.
+          A keyless rules check for six kinds of consumer red-flag clauses. Every finding shows its original quote and where it is.
+          A verified quote proves the text is there, not that the category is right or that a clause is enforceable. No findings
+          never means the terms are safe. This is not legal advice.
         </p>
       </header>
       <main className="stack">
         <div className="layout">
           <section>
             <h2>Policy text</h2>
+            <label htmlFor="fixture">Load a fixture</label>
+            <select id="fixture" value={fixtureId} onChange={(event) => edit(FIXTURES.find((item) => item.id === event.target.value)?.text ?? '', event.target.value)}>
+              <option value="" disabled>
+                Edited text
+              </option>
+              {FIXTURES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <p className="note">Northwind fixtures are smoke data written alongside the rules. {CORPUS_PROVENANCE}</p>
             <label htmlFor="rulebook">Rulebook</label>
             <select
               id="rulebook"
-              value={RULEBOOKS.some((item) => item.id === rulebookId) ? rulebookId : 'custom'}
+              value={presetId}
               onChange={(event) => {
-                if (event.target.value !== 'custom') applyRulebook(event.target.value);
+                const book = RULEBOOKS.find((item) => item.id === event.target.value);
+                if (book) setCategories([...book.categoryIds]);
               }}
             >
               {RULEBOOKS.map((book) => (
@@ -140,192 +161,177 @@ export function App() {
                   <input
                     type="checkbox"
                     checked={enabled.includes(category.id)}
-                    onChange={() => toggleCategory(category.id)}
+                    onChange={() =>
+                      setCategories(enabled.includes(category.id) ? enabled.filter((id) => id !== category.id) : [...enabled, category.id])
+                    }
                   />{' '}
                   {category.label}
                 </label>
               ))}
             </div>
-            <label htmlFor="policy">Text buffer</label>
-            <textarea id="policy" value={text} onChange={(event) => setText(event.target.value)} />
+            <label htmlFor="policy">Text</label>
+            <textarea id="policy" value={text} onChange={(event) => edit(event.target.value)} />
             <div className="actions">
-              <button type="button" className="secondary" onClick={() => setText(sampleText)}>
-                Load sample
-              </button>
-              <button type="button" onClick={scanBaseline}>
-                Scan with baseline
+              <button type="button" onClick={() => run('rules')}>
+                Check with rules
               </button>
             </div>
-            <label htmlFor="draft">Recorded model draft</label>
-            <textarea id="draft" value={draftText} onChange={(event) => setDraftText(event.target.value)} />
+            <label htmlFor="draft">Recorded candidates (JSON)</label>
+            <textarea id="draft" value={draftText} onChange={(event) => {
+                setDraftText(event.target.value);
+                invalidate();
+              }}
+            />
             <div className="actions">
-              <button type="button" onClick={checkDraft}>
-                Check recorded draft
+              <button type="button" onClick={() => run('recorded')}>
+                Rules + recorded candidates
+              </button>
+              <button type="button" className="secondary" onClick={() => run('semantic')}>
+                Semantic-audit example
               </button>
             </div>
-            <p className="note">The draft is checked against the text buffer. It does not call a network.</p>
+            <p className="note">
+              Recorded candidates are checked against the text with the same validator the extension uses. They are not a model
+              run and make no network call. The default file shows a full real quote (accepted), a fabricated quote and a real
+              prefix with an invented ending (both rejected), a short fragment (expanded to its sentence) and a repeated quote
+              (ambiguous).
+            </p>
           </section>
           <div className="stack">
             <section>
-              <h2>Baseline</h2>
-              {enabled.length === 0 ? <p>No categories are selected, so nothing can be flagged.</p> : null}
-              {baseline ? <ResultView text={text} result={baseline} /> : <p>Scan the buffer to see flags and highlights.</p>}
-            </section>
-            <section>
-              <h2>Recorded draft</h2>
-              {draftError ? <p className="error">{draftError}</p> : null}
-              {draft ? <ResultView text={text} result={draft} /> : <p>Check the draft to see a kept quote and a dropped quote.</p>}
+              <h2>{mode === 'rules' ? 'Rules' : mode === 'semantic' ? 'Semantic-audit example' : 'Rules + recorded'}</h2>
+              {mode === 'semantic' && result?.findings.some((item) => item.categoryId === 'arbitration' && item.provenance.some((p) => p.engine === 'recorded')) ? (
+                <p className="note">
+                  This recorded candidate quotes real text under the wrong category. Grounding accepts it because the quote is real;
+                  only a semantic label can catch the error. That is why every card says the category is not verified.
+                </p>
+              ) : null}
+              {error ? <p className="error">{error}</p> : null}
+              {result ? <ResultView text={text} result={result} /> : <p>Run a check to see findings.</p>}
             </section>
           </div>
         </div>
 
-        <section>
-          <h2>Optional model</h2>
-          <p className="note">
-            The key stays in this page's memory and is cleared on refresh. It is not a Vite variable and it is not
-            sent to a project server. A remote endpoint must be https. Localhost and 127.0.0.1 may use http. Other
-            private and metadata hosts are blocked. The provider may still reject the browser with CORS.
-          </p>
-          <label htmlFor="endpoint">HTTPS chat-completions URL</label>
-          <input
-            id="endpoint"
-            value={model.endpoint}
-            autoComplete="off"
-            onChange={(event) => setModel({ ...model, endpoint: event.target.value })}
-          />
-          <label htmlFor="model-name">Model name</label>
-          <input
-            id="model-name"
-            value={model.model}
-            autoComplete="off"
-            onChange={(event) => setModel({ ...model, model: event.target.value })}
-          />
-          <label htmlFor="api-key">API key</label>
-          <input
-            id="api-key"
-            type="password"
-            value={model.apiKey}
-            autoComplete="off"
-            onChange={(event) => setModel({ ...model, apiKey: event.target.value })}
-          />
-          <div className="actions">
-            <button type="button" disabled={busy} onClick={() => void runModel('https')}>
-              Run hosted model
-            </button>
-            <button type="button" className="secondary" disabled={busy} onClick={() => void runModel('on-device')}>
-              Run on-device model
-            </button>
-          </div>
-          {modelError ? <p className="error">{modelError}</p> : null}
-          {modelResult ? <ResultView text={text} result={modelResult} /> : null}
-        </section>
-
-        {buffer ? (
+        {result && result.findings.length ? (
           <section>
-            <h2>Highlight buffer</h2>
-            <p className="note">Marks show the latest baseline, recorded draft, or model result.</p>
-            <BufferView text={text} result={buffer} />
+            <h2>Text with findings marked</h2>
+            <BufferView text={text} findings={result.findings} />
           </section>
         ) : null}
 
-        <section>
-          <h2>Synthetic evaluation</h2>
-          <p className="note">{CORPUS_PROVENANCE}</p>
-          <p className="note">
-            Strict recall is below 100% because one arbitration clause is a paraphrase. Loose precision is lower
-            because short keywords hit a bulletin that is not a policy clause. This is not a live model score.
-          </p>
-          {report.missingQuotes.length > 0 ? (
-            <p className="error">Gold quotes missing from their texts: {report.missingQuotes.join('; ')}</p>
-          ) : null}
-          <table>
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Strict precision</th>
-                <th>Strict recall</th>
-                <th>Loose precision</th>
-                <th>Loose recall</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.strict.perCategory.map((row) => {
-                const loose = report.loose.perCategory.find((item) => item.categoryId === row.categoryId);
-                return (
-                  <tr key={row.categoryId}>
-                    <td>{CATEGORY_BY_ID[row.categoryId].label}</td>
-                    <td>{formatRate(row.precision)}</td>
-                    <td>{formatRate(row.recall)}</td>
-                    <td>{formatRate(loose?.precision ?? null)}</td>
-                    <td>{formatRate(loose?.recall ?? null)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr>
-                <th>Micro</th>
-                <td>{formatRate(report.strict.micro.precision)}</td>
-                <td>{formatRate(report.strict.micro.recall)}</td>
-                <td>{formatRate(report.loose.micro.precision)}</td>
-                <td>{formatRate(report.loose.micro.recall)}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </section>
+        <EvaluationView />
       </main>
     </>
   );
 }
 
-function ResultView({ text, result }: { text: string; result: AnalyzeResult }) {
+function provenance(finding: Finding): string {
+  return [...new Set(finding.provenance.map((item) => (item.engine === 'rules' ? 'Rules' : item.engine === 'recorded' ? 'Recorded' : item.engine)))].join(' + ');
+}
+
+function ResultView({ text, result }: { text: string; result: ScanResult }) {
+  if (result.state === 'no_categories') return <p className="error">No categories selected. Nothing was checked — this is not a safety result.</p>;
   return (
     <>
-      <p className="grade">
-        <strong>{result.grade.letter}</strong>
-        <span>
-          {result.grade.score}/100 from {result.flags.length} kept {result.flags.length === 1 ? 'flag' : 'flags'}
-        </span>
+      <p className="meta">
+        All {text.length.toLocaleString()} characters checked by the rules. {result.findings.length} finding(s) shown
+        {result.findingLimitReached ? ` (display limit reached; ${result.counts.accepted} accepted)` : ''}.
       </p>
-      {result.flags.length === 0 ? <p>No kept flags for the selected categories.</p> : null}
-      {result.flags.map((flag) => (
-        <article className="flag" key={`${flag.source}-${flag.categoryId}-${flag.start}`}>
-          <h3>
-            {CATEGORY_BY_ID[flag.categoryId].label} · {flag.severity}
-          </h3>
-          <blockquote>{flag.quote}</blockquote>
+      {result.findings.length === 0 ? <p>No findings for the selected categories. This does not mean the terms are safe.</p> : null}
+      {result.findings.map((finding) => (
+        <article className="flag" key={finding.id}>
+          <h3>{CATEGORY_BY_ID[finding.categoryId].label}</h3>
+          <p className="meta">{finding.reasonCodes.map(reasonLabel).join(' · ')}</p>
+          <p className="badge">Quote verified — category not verified.</p>
+          <blockquote>{finding.quote}</blockquote>
+          <p>{finding.explanation}</p>
           <p className="meta">
-            Characters {flag.start}–{flag.end} of {text.length}. {flag.matchCount === 1 ? 'One match in the buffer.' : `${flag.matchCount} matches; the first is stored.`} Source: {flag.source}.
+            {finding.sectionLabel ? `Section: ${finding.sectionLabel}. ` : ''}
+            {provenance(finding)}. Characters {finding.occurrences[0]?.start}–{finding.occurrences[0]?.end}.
+            {finding.ambiguous ? ` The same quote appears ${finding.occurrences.length} times; each occurrence is listed, none is chosen silently.` : ''}
+            {finding.expanded ? ' A shorter quote was expanded to its full sentence.' : ''}
           </p>
-          <p>{flag.note}</p>
         </article>
       ))}
-      {result.dropped.length > 0 ? (
-        <div className="dropped">
-          <h3>Dropped</h3>
-          <ul>
-            {result.dropped.map((item, index) => (
-              <li key={`${item.reason}-${item.categoryId}-${index}`}>
-                {item.reason}: {item.quote.trim() || '(empty quote)'}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <details className="dropped">
+        <summary>Diagnostics ({result.rejections.length} rejected)</summary>
+        <p className="meta">
+          Candidates {result.counts.candidates} · accepted {result.counts.accepted} · rejected {result.counts.rejected} · expanded{' '}
+          {result.counts.expanded} · ambiguous {result.counts.ambiguous}
+        </p>
+        <ul>
+          {result.rejections.slice(0, 50).map((item, index) => (
+            <li key={`${item.code}-${index}`}>
+              <code>{item.code}</code> {item.engine}: {item.preview || '(empty)'}
+              {item.detail ? ` — ${item.detail}` : ''}
+            </li>
+          ))}
+        </ul>
+      </details>
     </>
   );
 }
 
-function BufferView({ text, result }: { text: string; result: AnalyzeResult }) {
+function BufferView({ text, findings }: { text: string; findings: readonly Finding[] }) {
   const parts = splitByRanges(
     text,
-    result.flags.map((flag) => ({ start: flag.start, end: flag.end, categoryId: flag.categoryId })),
+    findings.flatMap((finding) => finding.occurrences.map((item) => ({ start: item.start, end: item.end, categoryId: finding.categoryId }))),
   );
   return (
     <pre className="buffer">
-      {parts.map((part, index) =>
-        part.categories.length > 0 ? <mark key={index}>{part.text}</mark> : <span key={index}>{part.text}</span>,
-      )}
+      {parts.map((part, index) => (part.categories.length > 0 ? <mark key={index}>{part.text}</mark> : <span key={index}>{part.text}</span>))}
     </pre>
+  );
+}
+
+function EvaluationView() {
+  const report = Object.values(measured)[0];
+  return (
+    <section>
+      <h2>Evaluation</h2>
+      {!report ? (
+        <p>
+          Not measured. Numbers appear here only after <code>npm run eval:prepare</code> and <code>npm run eval</code> write
+          results/results.json. The on-device model stays not measured until a real eval.html run is exported and validated.
+        </p>
+      ) : (
+        <>
+          <p className="note">
+            Generated {report.generatedAt} on the {report.split} split (manifest {report.manifest.sha256.slice(0, 12)}…). Detection
+            scores below; see results/results.md for exact and relaxed localization, uncertainty and the error audit.
+          </p>
+          <ul className="note">
+            {report.limitations.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <table>
+            <thead>
+              <tr>
+                <th>Engine</th>
+                <th>Support</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.results.map((row) => {
+                const micro = row.scores.detection?.micro;
+                return (
+                  <tr key={row.engine}>
+                    <td>{row.engine}</td>
+                    <td>{micro?.support ?? 'undefined'}</td>
+                    <td>{formatRate(micro?.precision ?? null)}</td>
+                    <td>{formatRate(micro?.recall ?? null)}</td>
+                    <td>{formatRate(micro?.f1 ?? null)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      )}
+    </section>
   );
 }

@@ -127,3 +127,14 @@ th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line
   .layout, .checks { grid-template-columns: 1fr; }
   header, main { padding: 16px; }
 }
+
+.badge {
+  display: inline-block;
+  margin: 4px 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #ece4d2;
+  font-size: 0.85rem;
+}
+
+code { font-family: Consolas, monospace; font-size: 0.9em; }
