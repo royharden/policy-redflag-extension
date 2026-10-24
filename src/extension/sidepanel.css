@@ -65,4 +65,64 @@ blockquote {
   border-left: 3px solid var(--flag);
 }
 
-.grade { font-family: Palatino, "Palatino Linotype", serif; font-size: 1.8rem; color: var(--flag); margin: 0; }
+/* .grade styling removed with the grade feature (PLAN.md: no grades or scores). */
+
+input[type='checkbox'] { width: auto; }
+
+.check input { margin-right: 4px; }
+
+.status { font-weight: 650; }
+
+.warning { color: var(--flag); }
+
+.finding {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 10px 0;
+  background: #fffdf7;
+}
+
+.finding h3 { margin: 0 0 2px; font-size: 1rem; }
+
+.reasons { margin: 0; font-weight: 600; }
+
+.badge {
+  display: inline-block;
+  margin: 4px 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #ece4d2;
+  font-size: 0.85rem;
+}
+
+blockquote.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+blockquote mark { background: #f6dc8a; color: inherit; }
+
+button.link {
+  background: transparent;
+  color: var(--flag);
+  border: 0;
+  padding: 2px 4px;
+  text-decoration: underline;
+}
+
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+
+th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 3px 4px; }
+
+.diagnostics { margin: 12px 0; }
+
+.diagnostics li { margin: 4px 0; word-break: break-word; }
+
+.preview { white-space: pre-wrap; }
+
+code { font-family: Consolas, monospace; font-size: 0.85rem; }
