@@ -1,0 +1,410 @@
+{
+  "seedVersion": "s12-seed/1",
+  "rubricVersion": "rubric/1",
+  "author": "S12-INT (Claude Opus 5.5), 2026-10-23",
+  "licence": "MIT, same as this repository. Original synthetic text written for this project; not copied from any dataset or real policy.",
+  "exposure": "Written after the strict rules by the same author. Self-authored bias; held-out results are regression evidence only.",
+  "format": "Each unit is [text, reasonCodes comma-separated (empty = negative for every category), hard-negative categories comma-separated]. Every document is complete for all six categories.",
+  "documents": [
+    {
+      "groupId": "bill-01",
+      "title": "Brightline Fitness membership",
+      "units": [
+        ["Your Brightline membership renews automatically every month until you cancel.", "auto_renews", ""],
+        ["If you do not cancel before your billing date, we will charge the card on file for the next month.", "auto_renews", ""],
+        ["Day passes are a one-time purchase and never renew.", "", "auto_renewal"],
+        ["You can cancel your membership online at any time from the Account page.", "", "auto_renewal"],
+        ["Class prices shown on the schedule include all taxes.", "", "auto_renewal"],
+        ["We will email you a receipt after every payment.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-02",
+      "title": "Quillnote Pro subscription",
+      "units": [
+        ["Quillnote Pro is billed annually and renews at the then-current list price.", "auto_renews,price_change_on_renewal", ""],
+        ["We may increase the subscription fee for future renewal periods after giving you 30 days notice.", "price_change_on_renewal", ""],
+        ["Your price is locked for as long as your subscription stays active.", "", "auto_renewal"],
+        ["Monthly plans do not renew automatically; you choose whether to buy another month.", "", "auto_renewal"],
+        ["Students can renew their verification each school year to keep the discount.", "", "auto_renewal"],
+        ["Refunds for duplicate charges are issued within ten business days.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-03",
+      "title": "Harborview Parking permits",
+      "units": [
+        ["Annual permits can only be cancelled by sending written notice by certified mail to our office.", "cancel_hurdle", ""],
+        ["Permits continue to bill each quarter until we receive your cancellation.", "auto_renews", ""],
+        ["A replacement permit costs ten dollars.", "", "auto_renewal"],
+        ["Your permit expires on the date printed on the card and is not extended automatically.", "", "auto_renewal"],
+        ["You can renew an expired permit at the front desk if you want one again.", "", "auto_renewal"],
+        ["Parking rates may change for daily visitors without notice.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-04",
+      "title": "Lumen Stream television",
+      "units": [
+        ["After your free trial ends, your plan converts to a paid subscription that recurs monthly.", "auto_renews", ""],
+        ["To cancel, you must call our retention team during business hours.", "cancel_hurdle", ""],
+        ["The free trial ends without any charge if you choose not to start a paid plan.", "", "auto_renewal"],
+        ["Rentals are single purchases and are available for 48 hours.", "", "auto_renewal"],
+        ["Cancelling stops future charges and you keep access until the end of the paid period.", "", "auto_renewal"],
+        ["We may change the catalogue of shows at any time.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-05",
+      "title": "Copperleaf Meal Kits",
+      "units": [
+        ["Your weekly box subscription automatically renews each week and your card is charged every Thursday.", "auto_renews", ""],
+        ["An early termination fee of 25 dollars applies if you cancel within the first three months of your plan.", "cancel_hurdle", ""],
+        ["You can skip any week before Wednesday at noon without being charged.", "", "auto_renewal"],
+        ["One-off gift boxes are paid once and do not recur.", "", "auto_renewal"],
+        ["We may substitute ingredients when a supplier runs out.", "", "auto_renewal"],
+        ["Delivery fees are shown at checkout before you pay.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-06",
+      "title": "Northgate Cloud Storage",
+      "units": [
+        ["Storage plans renew automatically for successive one-year terms.", "auto_renews", ""],
+        ["Renewal terms are charged at our standard rate in effect at the time of renewal, which may be higher than your introductory price.", "price_change_on_renewal", ""],
+        ["You must give at least 60 days notice before the end of the term to cancel your plan.", "cancel_hurdle", ""],
+        ["We remind you by email two weeks before any renewal and you can turn renewal off in settings.", "auto_renews", ""],
+        ["Free accounts stay free and are never billed.", "", "auto_renewal"],
+        ["Our servers are powered by renewable energy.", "", "auto_renewal"],
+        ["You may download your files at any time before you close your account.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-07",
+      "title": "Pinecrest Magazine",
+      "units": [
+        ["Print subscriptions continue to be billed every issue until you tell us to stop.", "auto_renews", ""],
+        ["Cancellation requests are accepted only by telephone and no refunds are given for issues already shipped.", "cancel_hurdle", ""],
+        ["Single issues can be bought at newsstands for the cover price.", "", "auto_renewal"],
+        ["Gift subscriptions end after the gifted term and the recipient is never charged.", "", "auto_renewal"],
+        ["We may change the cover price of single issues sold in shops.", "", "auto_renewal"],
+        ["Back issues are available while supplies last.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-08",
+      "title": "Orbit VPN",
+      "units": [
+        ["Orbit VPN plans auto-renew at the end of each billing cycle.", "auto_renews", ""],
+        ["After the first year, your plan renews at the regular price instead of the promotional price.", "price_change_on_renewal", ""],
+        ["You can request a full refund within 30 days of your first purchase.", "", "auto_renewal"],
+        ["Renewal reminders are sent seven days in advance, and turning off auto-renewal takes one click.", "auto_renews", ""],
+        ["Lifetime licences are paid once and never billed again.", "", "auto_renewal"],
+        ["We do not charge a cancellation fee.", "", "auto_renewal"],
+        ["Prices are listed in US dollars.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-09",
+      "title": "Fernway Software maintenance",
+      "units": [
+        ["Maintenance and support renew automatically for one-year terms unless either party gives notice of non-renewal.", "auto_renews", ""],
+        ["We may adjust maintenance fees at renewal by up to the change in the consumer price index.", "price_change_on_renewal", ""],
+        ["Perpetual software licences purchased outright do not require renewal.", "", "auto_renewal"],
+        ["Maintenance ends on the expiry date unless you choose to buy another term.", "", "auto_renewal"],
+        ["Training courses are billed per seat and do not recur.", "", "auto_renewal"],
+        ["Invoices are payable within 30 days.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "bill-10",
+      "title": "Kestrel Kids learning app",
+      "units": [
+        ["The family plan is a recurring subscription charged to your app store account each month.", "auto_renews", ""],
+        ["To cancel a subscription bought on our website, you must email support and wait for written confirmation.", "cancel_hurdle", ""],
+        ["Cancelling in the app store settings takes effect at the end of the current month.", "", "auto_renewal"],
+        ["Classroom licences are purchased by schools for one school year and expire in June.", "", "auto_renewal"],
+        ["Parents can renew a lost password from the sign-in screen.", "", "auto_renewal"],
+        ["New lessons are added every week at no extra cost.", "", "auto_renewal"]
+      ]
+    },
+    {
+      "groupId": "priv-01",
+      "title": "Brightline Fitness privacy notice",
+      "units": [
+        ["We sell your personal information, including workout history, to fitness marketing companies.", "sale,sharing_advertising", ""],
+        ["We share your contact details with partner gyms so they can send you their own offers.", "sharing_third_party,sharing_advertising", ""],
+        ["We use cookies to keep you signed in.", "", "data_sale_or_share"],
+        ["We keep your workout data for two years after your last visit.", "", "data_sale_or_share"],
+        ["Do not share your membership barcode with other people.", "", "data_sale_or_share"],
+        ["You can share your workout streak with friends from the app if you choose.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-02",
+      "title": "Quillnote privacy policy",
+      "units": [
+        ["We do not sell your personal information, but we may share it with our affiliates and business partners.", "sharing_third_party", ""],
+        ["Advertising networks may receive your device identifiers and browsing activity from our apps.", "sharing_advertising", ""],
+        ["We will never sell your notes or the personal information in your account.", "", "data_sale_or_share"],
+        ["Service providers that host our servers process your data only on our instructions and under contract.", "", "data_sale_or_share"],
+        ["We may disclose information when a court order requires it.", "", "data_sale_or_share"],
+        ["Aggregated statistics that cannot identify you may be published in our annual report.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-03",
+      "title": "Harborview resident app privacy",
+      "units": [
+        ["Your personal data may be sold to third parties as part of our data licensing program.", "sale", ""],
+        ["We may provide your personal information to data brokers who combine it with other sources.", "sharing_third_party,sale", ""],
+        ["We encrypt your personal information in transit and at rest.", "", "data_sale_or_share"],
+        ["We do not share your personal information with advertisers.", "", "data_sale_or_share"],
+        ["Building staff can see your unit number to deliver packages.", "", "data_sale_or_share"],
+        ["You may ask us to delete your personal data at any time.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-04",
+      "title": "Lumen Stream privacy",
+      "units": [
+        ["We share your viewing history with advertising partners to show you targeted ads on other sites.", "sharing_advertising", ""],
+        ["Information about you may be disclosed to our co-marketing sponsors.", "sharing_third_party,sharing_advertising", ""],
+        ["Profiles for children are never used for advertising and are not shared.", "", "data_sale_or_share"],
+        ["We use first-party cookies to measure which shows are popular.", "", "data_sale_or_share"],
+        ["You can share a show link with a friend by text message.", "", "data_sale_or_share"],
+        ["We retain payment records for seven years to meet tax rules.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-05",
+      "title": "Copperleaf privacy",
+      "units": [
+        ["We may sell or rent your name, address and order history to other food brands.", "sale", ""],
+        ["We may share your personal information with third parties for their own marketing purposes.", "sharing_third_party,sharing_advertising", ""],
+        ["Delivery partners receive only your address and delivery notes so they can drop off your box.", "", "data_sale_or_share"],
+        ["We never sell your personal information to anyone.", "", "data_sale_or_share"],
+        ["Your recipe ratings are stored in your account.", "", "data_sale_or_share"],
+        ["If you share your referral code, friends who use it get a discount.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-06",
+      "title": "Northgate Cloud privacy",
+      "units": [
+        ["We share usage data with analytics vendors who may use it to improve their own products.", "sharing_third_party", ""],
+        ["Customer data is shared with our marketing partners for joint promotional campaigns.", "sharing_advertising,sharing_third_party", ""],
+        ["We do not read or sell the contents of your files.", "", "data_sale_or_share"],
+        ["Our subprocessors act only on our behalf and may not use your data for their own purposes.", "", "data_sale_or_share"],
+        ["We may disclose personal information if the law requires it.", "", "data_sale_or_share"],
+        ["Shared folders are visible only to the people you invite.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-07",
+      "title": "Pinecrest Magazine privacy",
+      "units": [
+        ["We rent our subscriber list, including your name and mailing address, to other publishers.", "sale,sharing_third_party", ""],
+        ["Your personal information is shared with advertisers who sponsor our newsletters.", "sharing_advertising", ""],
+        ["You can opt out of postal mail from us at any time.", "", "data_sale_or_share"],
+        ["We do not disclose your reading history to other companies.", "", "data_sale_or_share"],
+        ["We store your payment details with a payment processor that handles them on our behalf.", "", "data_sale_or_share"],
+        ["Readers can share articles on social media using the share button.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-08",
+      "title": "Orbit VPN privacy",
+      "units": [
+        ["We may sell de-identified browsing data together with your account email to research firms.", "sale", ""],
+        ["We transfer your personal information to our parent company and its affiliates for their marketing.", "sharing_third_party,sharing_advertising", ""],
+        ["We do not log the websites you visit.", "", "data_sale_or_share"],
+        ["Connection timestamps are deleted after 24 hours.", "", "data_sale_or_share"],
+        ["We will not share your personal information with third parties except as needed to process payments.", "", "data_sale_or_share"],
+        ["Never share your VPN password with anyone.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-09",
+      "title": "Fernway Software privacy",
+      "units": [
+        ["Contact information of your users may be disclosed to our reseller partners.", "sharing_third_party", ""],
+        ["We share personal data with third-party advertising networks to measure campaign results.", "sharing_advertising", ""],
+        ["We do not sell personal information as defined by applicable law.", "", "data_sale_or_share"],
+        ["Crash reports are anonymized before we store them.", "", "data_sale_or_share"],
+        ["Administrators can export user lists from the dashboard.", "", "data_sale_or_share"],
+        ["We use cookies that are strictly necessary for the site to work.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "priv-10",
+      "title": "Kestrel Kids privacy",
+      "units": [
+        ["We may share information about you and your child with educational partners who offer related products.", "sharing_third_party,sharing_advertising", ""],
+        ["Parent email addresses may be sold to companies that sell school supplies.", "sale", ""],
+        ["We never show behavioral advertising to children.", "", "data_sale_or_share"],
+        ["Teachers can see the progress of students in their class.", "", "data_sale_or_share"],
+        ["We delete a child's data when the parent closes the account.", "", "data_sale_or_share"],
+        ["Parents can share progress reports with grandparents by email.", "", "data_sale_or_share"]
+      ]
+    },
+    {
+      "groupId": "cont-01",
+      "title": "Snapgrove photo sharing terms",
+      "units": [
+        ["You grant us a perpetual, irrevocable, worldwide license to use, copy and modify any photos you upload.", "perpetual_irrevocable", ""],
+        ["The license you grant includes the right to sublicense your content to our partners.", "sublicensable", ""],
+        ["You keep ownership of the photos you upload.", "", "broad_content_license"],
+        ["We grant you a limited licence to use the Snapgrove app on your devices.", "", "broad_content_license"],
+        ["You can license your photos to others through our marketplace and set your own price.", "", "broad_content_license"],
+        ["Deleting a photo removes it from your public profile within 24 hours.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-02",
+      "title": "Wordloft writing community terms",
+      "units": [
+        ["By posting a story you give Wordloft an irrevocable license to publish, adapt and translate it.", "perpetual_irrevocable", ""],
+        ["We may use the stories you post under this license to train and improve our AI writing assistant.", "ai_training", ""],
+        ["Our AI writing assistant is trained only on public-domain books and licensed text, not on your stories.", "", "broad_content_license"],
+        ["The license you grant ends when you delete your story, except for copies already shared by other readers.", "", "broad_content_license"],
+        ["Wordloft is released under an open-source license on our code site.", "", "broad_content_license"],
+        ["You are responsible for having the rights to anything you post.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-03",
+      "title": "Tunewell music upload terms",
+      "units": [
+        ["You grant Tunewell a royalty-free, sublicensable license to distribute the recordings you upload.", "sublicensable", ""],
+        ["Your recordings may be used to train machine learning models under the license you grant us.", "ai_training", ""],
+        ["The licence we receive is non-exclusive, revocable and ends when you remove the track.", "", "broad_content_license"],
+        ["We do not use your recordings to train AI models.", "", "broad_content_license"],
+        ["Artists keep all copyright in their recordings.", "", "broad_content_license"],
+        ["You may license your music to film makers through any agency you choose.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-04",
+      "title": "Mapleboard forum terms",
+      "units": [
+        ["You grant us a perpetual license to display and reuse any post you make, even after you delete your account.", "perpetual_irrevocable", ""],
+        ["We may transfer or sublicense the rights in your posts to any successor of our business.", "sublicensable", ""],
+        ["Posts are licensed to other users under a Creative Commons licence that you choose.", "", "broad_content_license"],
+        ["We need a license to host your posts so that other members can read them while they are online.", "", "broad_content_license"],
+        ["Moderators may remove posts that break the community rules.", "", "broad_content_license"],
+        ["You can edit your own posts at any time.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-05",
+      "title": "Clipnest video terms",
+      "units": [
+        ["The license you grant us in your videos is worldwide, irrevocable and survives termination of these terms.", "perpetual_irrevocable", ""],
+        ["You grant us the right to use the videos you upload to develop and train our artificial intelligence models.", "ai_training", ""],
+        ["We train our recommendation models on viewing counts, not on the content of your videos.", "", "broad_content_license"],
+        ["You may revoke our license to any video by deleting it.", "", "broad_content_license"],
+        ["We license music from labels for use in our editing tools.", "", "broad_content_license"],
+        ["Videos marked private are visible only to you.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-06",
+      "title": "Recipely recipe site terms",
+      "units": [
+        ["You grant us a perpetual, royalty-free license to publish your recipes and photos in our cookbooks.", "perpetual_irrevocable", ""],
+        ["We may sublicense the recipes you submit to our publishing partners.", "sublicensable", ""],
+        ["You do not grant us any right to publish your recipes outside the website.", "", "broad_content_license"],
+        ["Our site license lets you print recipes for personal use.", "", "broad_content_license"],
+        ["Recipes you submit stay credited to your username.", "", "broad_content_license"],
+        ["We may feature popular recipes on the home page for as long as they remain posted.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-07",
+      "title": "Penstroke design marketplace terms",
+      "units": [
+        ["You grant Penstroke an irrevocable license to use your designs in our marketing, with the right to sublicense those rights to agencies.", "perpetual_irrevocable,sublicensable", ""],
+        ["Designs you upload may be used under this license as training data for our generative image models.", "ai_training", ""],
+        ["Buyers receive a license to your design only after paying for it.", "", "broad_content_license"],
+        ["Our generative models are trained on stock images we purchased, never on uploaded designs.", "", "broad_content_license"],
+        ["You may withdraw a design from sale at any time.", "", "broad_content_license"],
+        ["You keep all intellectual property rights in your designs.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-08",
+      "title": "Hearthside reviews terms",
+      "units": [
+        ["By submitting a review you grant us a perpetual and irrevocable license to use it in any media.", "perpetual_irrevocable", ""],
+        ["Reviews may be sublicensed to the businesses you review for use in their advertising.", "sublicensable", ""],
+        ["Businesses may reply to your review publicly.", "", "broad_content_license"],
+        ["We only use your review on our own site and remove it when you ask.", "", "broad_content_license"],
+        ["The license we take to your review ends when you delete it.", "", "broad_content_license"],
+        ["We use automated tools to detect fake reviews.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-09",
+      "title": "Chatterbox messaging terms",
+      "units": [
+        ["You license us to use the messages and voice recordings you send to train our speech recognition models.", "ai_training", ""],
+        ["The rights you grant in your messages are perpetual and may be sublicensed to our affiliates.", "perpetual_irrevocable,sublicensable", ""],
+        ["Messages are end-to-end encrypted and we cannot read them.", "", "broad_content_license"],
+        ["We do not use your messages to train AI models.", "", "broad_content_license"],
+        ["You may forward a message to another chat.", "", "broad_content_license"],
+        ["Stickers are licensed to you for use inside Chatterbox only.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "cont-10",
+      "title": "Gallerie art portfolio terms",
+      "units": [
+        ["You grant us a worldwide, sublicensable license to reproduce the artwork in your portfolio.", "sublicensable", ""],
+        ["Uploaded artwork may be used under the license you grant to fine-tune our AI style models.", "ai_training", ""],
+        ["We take only the license needed to show your portfolio to visitors.", "", "broad_content_license"],
+        ["Our AI tools never learn from portfolio images.", "", "broad_content_license"],
+        ["You can choose a licence for each artwork that visitors must follow.", "", "broad_content_license"],
+        ["Removing your portfolio ends our right to display it.", "", "broad_content_license"]
+      ]
+    },
+    {
+      "groupId": "disp-01",
+      "title": "Brightline dispute terms",
+      "units": [
+        ["Any dispute arising from these terms will be resolved by final and binding arbitration.", "binding_arbitration", ""],
+        ["You agree to bring claims only in your individual capacity and not as part of any class action.", "class_action_waiver", ""],
+        ["You waive any right to a jury trial for claims related to the service.", "jury_waiver", ""],
+        ["These terms are governed by the laws of the State of Oregon.", "", "arbitration"],
+        ["You may bring a claim in small claims court instead of arbitration if it qualifies.", "", "arbitration"],
+        ["We do not require arbitration for customers in the European Union.", "", "arbitration"]
+      ]
+    },
+    {
+      "groupId": "disp-02",
+      "title": "Northgate liability and changes",
+      "units": [
+        ["Our total liability for any claim shall not exceed the amount you paid us in the last 12 months.", "damages_cap", ""],
+        ["We are not liable for any indirect, incidental or consequential damages.", "exclusion_of_damages", ""],
+        ["THE SERVICE IS PROVIDED AS IS WITHOUT WARRANTIES OF ANY KIND.", "", "liability_cap"],
+        ["Nothing in these terms limits liability for death or personal injury caused by negligence.", "", "liability_cap"],
+        ["We may modify these terms at any time, and changes take effect when we post them on this page.", "modify_any_time,notice_by_posting", ""],
+        ["We will email you 30 days before any change to these terms takes effect.", "", "unilateral_change"],
+        ["By using the service you agree to these terms.", "", "unilateral_change"]
+      ]
+    },
+    {
+      "groupId": "disp-03",
+      "title": "Orbit changes and disputes",
+      "units": [
+        ["We reserve the right to change these terms from time to time without notice to you.", "modify_any_time", ""],
+        ["Your continued use of the service after we post updated terms means you accept the changes.", "notice_by_posting", ""],
+        ["We will not change these terms without your consent.", "", "unilateral_change"],
+        ["Claims must be submitted to binding arbitration administered by a neutral provider.", "binding_arbitration", ""],
+        ["You may opt out of arbitration by writing to us within 30 days of signing up.", "binding_arbitration", ""],
+        ["Our liability is limited to one hundred dollars.", "damages_cap", ""],
+        ["We are responsible for losses that were a foreseeable result of our breach.", "", "liability_cap"]
+      ]
+    }
+  ]
+}

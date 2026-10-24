@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "build:extension": "vite build --config vite.extension.config.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "eval:prepare": "vite-node scripts/prepare-gold.ts --",
+    "eval": "vite-node scripts/evaluate.ts --"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -21,6 +23,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
+    "vite-node": "^2.1.8",
     "vitest": "^2.1.8"
   }
 }
