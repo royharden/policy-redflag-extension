@@ -35,7 +35,8 @@ The first seed (`s12-seed/1`) was written on 2026-10-23 by the same agent that w
 
 ## Ambiguity and mixed cases
 
-- If a unit is genuinely ambiguous, label it by the rubric's most literal reading and add the unit ID to `ambiguous` in the seed document. Ambiguous units stay in scoring and are counted in the report.
+- If a unit is genuinely ambiguous, label it by the rubric's most literal reading and note it in the seed document's `ambiguous` list (unit indices; documentation only in `s12-seed/1`, not yet carried into reports). Ambiguous units stay in scoring.
+- Opt-out and small-claims carve-outs that only presuppose an arbitration clause are negatives (hard negatives) for `arbitration`.
 - If a hard negative is deliberately close to a category, list that category in the unit's hard-negative field. This marks it as a counted hard negative. It is still an ordinary negative for scoring.
 
 ## Source-label mapping (imports)

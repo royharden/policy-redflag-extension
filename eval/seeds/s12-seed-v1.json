@@ -15,7 +15,8 @@
         ["Day passes are a one-time purchase and never renew.", "", "auto_renewal"],
         ["You can cancel your membership online at any time from the Account page.", "", "auto_renewal"],
         ["Class prices shown on the schedule include all taxes.", "", "auto_renewal"],
-        ["We will email you a receipt after every payment.", "", "auto_renewal"]
+        ["We will email you a receipt after every payment.", "", "auto_renewal"],
+        ["Prepaid ten-class packs expire after six months and are not renewed or recharged.", "", "auto_renewal"]
       ]
     },
     {
@@ -398,10 +399,10 @@
       "title": "Orbit changes and disputes",
       "units": [
         ["We reserve the right to change these terms from time to time without notice to you.", "modify_any_time", ""],
-        ["Your continued use of the service after we post updated terms means you accept the changes.", "notice_by_posting", ""],
+        ["We may update these terms, and your continued use of the service after we post them means you accept the changes.", "modify_any_time,notice_by_posting", ""],
         ["We will not change these terms without your consent.", "", "unilateral_change"],
         ["Claims must be submitted to binding arbitration administered by a neutral provider.", "binding_arbitration", ""],
-        ["You may opt out of arbitration by writing to us within 30 days of signing up.", "binding_arbitration", ""],
+        ["You may opt out of arbitration by writing to us within 30 days of signing up.", "", "arbitration"],
         ["Our liability is limited to one hundred dollars.", "damages_cap", ""],
         ["We are responsible for losses that were a foreseeable result of our breach.", "", "liability_cap"]
       ]

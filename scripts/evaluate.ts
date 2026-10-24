@@ -11,13 +11,15 @@
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { analyze } from '../src/core/analyze';
 import { LOOSE_VERSION, RULES_VERSION, scanLoose, scanStrict } from '../src/core/baseline';
 import { formatRate, METRICS_VERSION, RELAXED_IOU_THRESHOLD, scoreSpans, type MatchMode, type ScoreCard, type SpanLabel } from '../src/core/evaluate';
 import { GOLD_SCHEMA_VERSION, rng, seedHash, SPLITS, validateGoldItem, type GoldItem, type GoldManifest, type SplitName } from '../src/core/gold';
-import { CATEGORY_IDS, CORE_VERSION, type CategoryId, type Interval } from '../src/core/types';
+import { CORE_VERSION, type CategoryId, type Interval } from '../src/core/types';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
+// fileURLToPath decodes %20 etc. (the project path contains a space) and handles Windows drive letters.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MODES: MatchMode[] = ['detection', 'exact', 'relaxed'];
 const BOOTSTRAP_SAMPLES = 1000;
 
@@ -71,7 +73,7 @@ interface EngineRow {
   predictions: Map<string, SpanLabel[]>;
   attempted: number;
   status: Record<string, number>;
-  shares?: Record<string, number>;
+  shares?: Record<string, number | null>;
   coverageUnits?: { processed: number; skipped: number; failed: number; total: number };
 }
 
@@ -163,7 +165,8 @@ function modelRow(runPath: string, items: readonly GoldItem[], gold: ReturnType<
     predictions.set(item.id, []);
     statusCounts.missing = (statusCounts.missing ?? 0) + 1;
   }
-  const ratioOf = (numerator: number, denominator: number) => (denominator ? numerator / denominator : Number.NaN);
+  // Undefined denominators are null (rendered as 'undefined'), never NaN or 0.
+  const ratioOf = (numerator: number, denominator: number): number | null => (denominator ? numerator / denominator : null);
   return {
     row: {
       name: `on-device:${String(header.modelIdentity ?? 'unknown')}`,
@@ -197,9 +200,36 @@ function unionRow(left: EngineRow, right: EngineRow): EngineRow {
 
 /* ----------------------------- scoring ----------------------------- */
 
+/**
+ * Detection is scored at the labelled clause/sentence units (PLAN.md section 7): each prediction is mapped
+ * onto the units it overlaps and deduplicated per (item, category, unit), so several fragments of one unit
+ * count once. Exact and relaxed localization keep the raw predicted spans.
+ */
+function unitPredictions(item: GoldItem, spans: readonly SpanLabel[]): SpanLabel[] {
+  const unitsOf = (span: Interval) => item.units.filter((unit) => unit.start < span.end && span.start < unit.end);
+  const seen = new Set<string>();
+  const out: SpanLabel[] = [];
+  for (const span of spans) {
+    const primary = unitsOf(span);
+    const alternatives = (span.alternatives ?? []).flatMap(unitsOf);
+    // One prediction is one unit (at most one TP): a span crossing units counts at its first unit only.
+    const targets = primary.length ? primary.slice(0, 1) : [{ start: span.start, end: span.end }];
+    for (const unit of targets) {
+      const key = `${span.categoryId}|${unit.start}-${unit.end}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ itemId: item.id, categoryId: span.categoryId, start: unit.start, end: unit.end, alternatives });
+    }
+  }
+  return out;
+}
+
 function score(items: readonly GoldItem[], row: EngineRow, mode: MatchMode): ScoreCard {
   const gold = goldSpans(items);
-  const predicted = items.flatMap((item) => row.predictions.get(item.id) ?? []);
+  const predicted = items.flatMap((item) => {
+    const spans = row.predictions.get(item.id) ?? [];
+    return mode === 'detection' ? unitPredictions(item, spans) : spans;
+  });
   return scoreSpans(gold, predicted, mode);
 }
 

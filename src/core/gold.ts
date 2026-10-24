@@ -43,7 +43,6 @@ export interface SplitEntry {
 export interface GoldManifest {
   schemaVersion: typeof GOLD_SCHEMA_VERSION;
   rubricVersion: string;
-  preparedAt: string;
   seed: string;
   devFraction: number;
   sources: {
@@ -63,7 +62,8 @@ export interface GoldManifest {
   mapping: { source: string; label: string; mappedTo: string | null; reason: string }[];
   excludedLabels: Record<string, number>;
   tuningExposure: string;
-  heldOutFrozen: { sha256: string; frozenAt: string };
+  /** preparedAt is deliberately absent so re-running on identical data keeps the manifest hash stable. */
+  heldOutFrozen: { sha256: string; frozenAt: string; history: { sha256: string; frozenAt: string; replacedAt: string }[] };
 }
 
 const REASON_TO_CATEGORY = new Map<string, CategoryId>(

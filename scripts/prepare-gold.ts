@@ -3,15 +3,16 @@
  *
  *   npm run eval:prepare                          # original seed only
  *   npm run eval:prepare -- --import <path.jsonl> --source-name UNFAIR-ToS --revision <rev> \
- *       --licence <licence> --attribution "<text>" --url <url> --redistribution-approved
+ *       --licence <licence> --attribution "<text>" --url <url> --sha256 <approved file hash> --redistribution-approved
  *
  * Writes eval/gold/dev.jsonl, eval/gold/held-out.jsonl and eval/gold/MANIFEST.json. Aborts on invalid
  * anchors, unknown labels, split leakage, hash mismatches, or a held-out change after freezing (unless
- * --refreeze is passed deliberately, which is recorded).
+ * --refreeze is passed deliberately; each re-freeze is appended to heldOutFrozen.history).
  */
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   assignSplits,
   categoryOfReason,
@@ -29,7 +30,8 @@ import {
 import { normalize } from '../src/core/text';
 import { CATEGORY_IDS, isCategoryId, type CategoryId, type Interval, type ReasonCode } from '../src/core/types';
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
+// fileURLToPath decodes %20 etc. (the project path contains a space) and handles Windows drive letters.
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_SEED = path.join(ROOT, 'eval/seeds/s12-seed-v1.json');
 const OUT = path.join(ROOT, 'eval/gold');
 
@@ -165,7 +167,8 @@ function importItems(importPath: string, raw: string, sourceName: string, exclud
     }
     // Without document IDs every sentence is its own group; leakage across near-duplicates is possible
     // and is disclosed in the manifest.
-    const groupId = typeof row.document === 'string' ? `import:${row.document}` : `import:${sha256(normalize(text)).slice(0, 16)}`;
+    // Same key as the leakage check (normalized, lower-cased) so case-only variants share a group.
+    const groupId = typeof row.document === 'string' ? `import:${row.document}` : `import:${sha256(normalize(text).toLowerCase()).slice(0, 16)}`;
     items.push({
       id: `${sourceName}:${index + 1}`,
       groupId,
@@ -207,19 +210,20 @@ function main() {
 
   const importPath = options.get('import');
   if (typeof importPath === 'string') {
-    for (const required of ['source-name', 'revision', 'licence', 'attribution']) {
+    for (const required of ['source-name', 'revision', 'licence', 'attribution', 'sha256']) {
       if (typeof options.get(required) !== 'string') fail(`--import needs --${required}`);
     }
     if (options.get('redistribution-approved') !== true) fail('--import needs --redistribution-approved after verifying the licence allows it');
     const absolute = path.resolve(importPath);
     if (!existsSync(absolute)) fail(`import file not found: ${absolute}`);
     const raw = readFileSync(absolute, 'utf8');
+    if (sha256(raw) !== options.get('sha256')) fail('import file hash does not match the approved --sha256');
     const name = options.get('source-name') as string;
     all.push(...importItems(absolute, raw, name, excluded));
     sources.push({
       name,
       kind: 'import',
-      path: absolute,
+      path: path.basename(absolute),
       sha256: sha256(raw),
       revision: options.get('revision') as string,
       licence: options.get('licence') as string,
@@ -272,7 +276,7 @@ function main() {
 
   const manifestPath = path.join(OUT, 'MANIFEST.json');
   const heldOutHash = sha256(contents['held-out']);
-  let frozen = { sha256: heldOutHash, frozenAt: new Date().toISOString() };
+  let frozen: GoldManifest['heldOutFrozen'] = { sha256: heldOutHash, frozenAt: new Date().toISOString(), history: [] };
   if (existsSync(manifestPath)) {
     const previous = JSON.parse(readFileSync(manifestPath, 'utf8')) as GoldManifest;
     if (previous.heldOutFrozen?.sha256 && previous.heldOutFrozen.sha256 !== heldOutHash) {
@@ -280,15 +284,15 @@ function main() {
         fail('held-out set differs from the frozen hash. Pass --refreeze only for a deliberate, recorded re-freeze (never to tune on held-out).');
       }
       console.warn('prepare-gold: re-freezing held-out on purpose (--refreeze).');
+      frozen.history = [...(previous.heldOutFrozen.history ?? []), { sha256: previous.heldOutFrozen.sha256, frozenAt: previous.heldOutFrozen.frozenAt, replacedAt: frozen.frozenAt }];
     } else if (previous.heldOutFrozen?.sha256 === heldOutHash) {
-      frozen = previous.heldOutFrozen;
+      frozen = { ...previous.heldOutFrozen, history: previous.heldOutFrozen.history ?? [] };
     }
   }
 
   const manifest: GoldManifest = {
     schemaVersion: GOLD_SCHEMA_VERSION,
     rubricVersion: RUBRIC_VERSION,
-    preparedAt: new Date().toISOString(),
     seed: SPLIT_SEED,
     devFraction: DEV_FRACTION,
     sources,
@@ -308,7 +312,7 @@ function main() {
       ? Object.entries(UNFAIR_TOS_MAP).map(([label, value]) => ({ source: options.get('source-name') as string, label, mappedTo: value.categoryId, reason: value.reason }))
       : [],
     excludedLabels: excluded,
-    tuningExposure: `${seed.exposure} Imported items (if any) were not used to write the rules.`,
+    tuningExposure: `${seed.exposure} Imported items (if any) were not used to write the rules.${typeof importPath === 'string' ? ' Imported sentences without document IDs are grouped one per sentence, so near-duplicate leakage across splits is possible.' : ''}`,
     heldOutFrozen: frozen,
   };
 
