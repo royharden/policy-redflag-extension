@@ -1,89 +1,42 @@
-# Bolt infrastructure handoff: Policy Red Flag
+# Bolt handoff: Policy Red Flag
 
-Dirty Mode construction — runtime unverified. This file is the provisioning inventory. It is not a claim that Bolt, Chrome, or a model provider has been exercised.
+Updated 2026-10-24. **Inspect-and-prepare only.** Nothing has been imported, built or published.
 
-## Target and readiness
+## What Bolt hosts
 
-- Repository / branch / prepared revision: local git only, no remote. Branch `main` after the construction commits. Do not treat a commit hash in this file as the revision; use the clone you import.
-- App root: repository root (the inner `policy-redflag-extension` folder).
-- Database: none.
-- Target: no database. Do not create a Bolt Database or a Supabase project for this app.
-- Existing baseline / applied migrations: none. No SQL files.
-- Hosting: Bolt hosting can serve the Vite demo later. The Chrome extension is not a Bolt host target.
-- Publication: prepare only. Do not publish.
-- Bolt action: inspect and prepare only.
-- Status: implementation present in source; infrastructure not required; runtime unverified.
-- Owner prerequisites: GitHub access if the repo is imported later. No database connection. A model key is optional and is typed by the user, not entered as a Bolt server secret.
+Bolt hosts only the **web lab** (React + Vite) and the static fixture page `public/fixtures/acme-terms.html`. The Chrome extension (`npm run build:extension` → `dist-extension/`) is a local unpacked-load step. Bolt does not load extensions, and it does not establish on-device model support.
 
-## Build and connection
+## Infrastructure
 
-| Item | Exact command or configuration name |
-|---|---|
-| Runtime / package manager | Node 22+ recommended. npm. No lockfile committed yet. |
-| Frozen install / dev | After a lockfile exists: `npm ci` then `npm run dev`. Until then, install is not frozen. |
-| Build / output | `npm run build` writes the demo to `dist/`. `npm run build:extension` writes the extension to `dist-extension/`. |
-| Type/lint/tests | `npm run typecheck`, `npm test`. Not run in Dirty Mode. |
-| Client file / public env names | No Supabase client. Optional public name: `VITE_APP_NAME`. |
-| Missing config behavior | The demo renders and the baseline scan runs with no environment file. |
+- Database: **none.** No Supabase, SQL, migrations, edge functions, auth, buckets, realtime or scheduled jobs.
+- Secrets: **none.** `.env.example` has one optional public label, `VITE_APP_NAME`. There is no provider key, endpoint or proxy.
+- Outside services: none. The web lab makes no network calls and never runs live inference.
 
-## Database
+## Source identity
 
-Not required. Do not add a database to make the import succeed.
+- The local Git repository is in this folder, on branch `master`, with no remote. Record the final local revision with `git log -1` at handoff time. Bolt import needs a pushed repository, which has **not** been authorized or created. Record the actual repository, branch and revision at import time; none exists yet, and none is invented here.
+- `package.json` declares the dependency ranges. **No lockfile exists yet.** The first authorized install creates one and must be reviewed.
 
-- Access model: not applicable. Scans stay in the browser. The extension uses `chrome.storage.session` for the last page and `chrome.storage.local` for the rulebook and optional model key.
-- Ownership checks: not applicable.
-- Extensions/RPC permissions/Realtime: not required.
-- Seeds: synthetic policies live in `src/core/fixtures.ts`. They are source, not database seed.
-- Retry rule: not applicable.
+## Commands and outputs
 
-## Functions
-
-Not required. There is no `supabase/functions` directory. Do not deploy a proxy. A hosted model is called from the browser only when the user supplies an endpoint and a key.
-
-- CORS/preflight: not applicable for a project backend. Provider CORS can block the demo; that must surface as an error.
-- Identity/ownership and abuse controls: `src/core/model.ts` rejects non-HTTPS remote hosts, metadata hosts, and private addresses other than localhost / 127.0.0.1 / ::1.
-- Paid API limits: not required. There is no project-paid key. The user brings their own key.
-- Webhooks: not required.
-- Platform credentials: none.
-
-## Server secrets to enter through settings
-
-Not required. Do not create a server secret for the model. Never add a `VITE_` API key.
-
-| Name | Consumer | Required / optional | Owner source |
-|---|---|---|---|
-| None | — | — | — |
-
-Missing-secret behavior: `completeChat` throws `ModelRequestError` when the key, model name, or endpoint is missing or rejected. The UI shows that message and does not create flags.
-
-## Auth, storage, and external steps
-
-- Auth providers/confirmation: not required.
-- Site URL and callback/recovery routes: not required.
-- Buckets: not required.
-- Realtime: not required.
-- Scheduled/long jobs: not required.
-- Outside services: optional. Chrome `LanguageModel` for on-device mode. An OpenAI-compatible HTTPS chat-completions URL only if the user types one. Chrome Web Store listing is out of scope.
-- Real integrations: optional user-supplied model endpoint. Explicit demos: recorded JSON draft in the demo, strict baseline, synthetic corpus. Stubs that pretend a model succeeded: none.
-
-## Acceptance checks and receipts
-
-| Check | Expected result | Outcome / receipt |
+| Command | Output | Status |
 |---|---|---|
-| Import/install/build | Demo build produces `dist/` after install | Pending. Not run. |
-| Schema | No database | Not required. |
-| Function round trip | No edge function | Not required. |
-| Auth/isolation | No accounts | Not required. |
-| Missing secret | Blank model key does not call the network and shows an actionable error | Pending. Covered by `tests/model.test.ts`, which has not been executed. |
-| Uploads | None | Not required. |
-| Webhooks | None | Not required. |
-| Jobs | None | Not required. |
-| Publish | Not requested | Not run. |
-| Extension load | Unpacked `dist-extension` scans one https page from the toolbar click | Pending. |
-| Quote drop | Recorded draft keeps `binding arbitration` and drops `this quote is not in the policy` on the sample | Pending. Source path is the demo button "Check recorded draft". |
+| `npm install` (first time), then `npm ci` | `node_modules/`, `package-lock.json` | not run |
+| `npm run typecheck` / `npm test` | — | not run |
+| `npm run dev` | lab at `/`, fixture at `/fixtures/acme-terms.html` | not run |
+| `npm run build` | `dist/` (lab + fixtures) | not run |
+| `npm run build:extension` | `dist-extension/` | not run; not for Bolt |
+| `npm run eval:prepare`, `npm run eval` | `eval/gold/`, `results/` | not run |
 
-## One prompt after GitHub import
+## Acceptance checks (all pending)
 
-### Inspect and prepare only
+| Check | Expected |
+|---|---|
+| Install/build | `dist/` builds from a reviewed lockfile |
+| Lab journey | ACME fixture → "Check with rules" shows all six categories with quotes, no grade; "Rules + recorded candidates" accepts the full quote, rejects the fabricated and prefix-plus-fiction quotes in Diagnostics, expands the fragment and marks the repeated quote ambiguous; "Semantic-audit example" accepts a real quote under the wrong category and explains why |
+| Evaluation view | Shows "Not measured" until `results/results.json` exists |
+| No backend | No database or function is created |
 
-> Read BOLT-HANDOFF.md and inspect the imported source at the intended branch/revision. This app has no database, no SQL migrations, and no edge functions. Do not create a database, apply migrations, deploy functions, enter secrets, or publish. Confirm `npm run dev` serves the React demo and that a baseline scan works on the built-in sample without any API key. Do not describe unexecuted checks as complete. Leave the Chrome extension build (`npm run build:extension`) as a local unpacked-load step; Bolt hosting is only for the demo.
+## Prompt after an authorized GitHub import
+
+> INSPECT-AND-PREPARE-ONLY. Read BOLT-HANDOFF.md and README.md, and inspect the imported source at the recorded branch and revision. This app has no database, migrations, edge functions or secrets. Do not create any of them, do not enter keys and do not publish. Run a clean install, `npm run typecheck`, `npm test` and `npm run build`, and report the real output. Confirm that `npm run dev` serves the lab and `/fixtures/acme-terms.html`, and walk through the lab journey in this file. Report any unexecuted check as not done. Leave the Chrome extension as a local unpacked-load step.

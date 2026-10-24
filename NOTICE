@@ -1,0 +1,14 @@
+Policy Red Flag
+Copyright (c) 2026 Roy Harden. Licensed under the MIT License (see LICENSE).
+
+All source code, fixtures (including public/fixtures/acme-terms.html and the Northwind and ACME texts)
+and the evaluation seed (eval/seeds/s12-seed-v1.json) are original work written for this project.
+Company names in fixtures are fictional.
+
+No third-party code or dataset is vendored. Prior-art projects (Termlens, tos-trap-spotter, caveatly,
+ClearClause, ToS;DR, Readability, WebLLM and Chrome samples) informed design vocabulary only; no code was
+copied. UNFAIR-ToS is referenced as a possible future import: any use requires verifying the exact
+revision, licence and redistribution terms, and recording attribution in eval/gold/MANIFEST.json.
+
+Runtime dependencies are declared in package.json (React, React DOM, Vite, @vitejs/plugin-react, Vitest, vite-node, TypeScript and @types packages) and carry
+their own licences; they are not included in this repository.

@@ -1,27 +1,37 @@
 # Evaluation
 
-The numbers in the demo are computed from `src/core/fixtures.ts` by `compareBaselines()`. They compare two local baselines on the same gold spans:
+Nothing here has been measured yet. All numbers come from `scripts/evaluate.ts`. That script is the only writer of `results/results.json` and `results/results.md`, and the README and the web lab only read those files.
 
-- **Strict** patterns look for multi-word clause shapes. A short negation window (`not`, `never`, `no`, `neither`) before the match suppresses a hit when the sentence is a refusal.
-- **Loose** patterns are single keywords. They are the comparison baseline, not the default scan.
+## Data
 
-A gold span matches a prediction when they overlap in the same document and category. Each gold span pairs with at most one prediction. Precision and recall are reported per category and as a micro average. A category with no gold and no predictions shows `n/a`.
+- **Rubric:** [eval/LABELLING.md](../eval/LABELLING.md) (`rubric/1`). It covers whole-clause anchors, negation, exclusions and import mapping.
+- **Seed:** `eval/seeds/s12-seed-v1.json` is original synthetic text in 33 grouped documents.
+  - Positives: 23 `auto_renewal`, 20 `data_sale_or_share` and 20 `broad_content_license`.
+  - Counted hard negatives: at least 40 for each of those three categories.
+  - The other three categories have smoke coverage only.
+  - Exposure: the seed was written after the rules, by the same author.
+- **Northwind** fixtures in `src/core/fixtures.ts` are smoke data for tests and the lab's fixture picker. They are never used as accuracy data.
+- **Imports:** `npm run eval:prepare -- --import …` accepts only an approved local file, given with `--source-name`, `--revision`, `--licence`, `--attribution`, an approved `--sha256` (checked before parsing) and `--redistribution-approved`. UNFAIR-ToS maps only arbitration, unilateral change and limitation of liability. "Contract by using" is never mapped. Do not vendor OPP-115, CUAD or any unlicensed material.
 
-## What this set can show
+## Freezing
 
-The hobby-box sample plants one obvious sentence for each category, plus a second liability sentence. A separate note describes arbitration without using the word, so strict recall on the whole set is below 100%. A community bulletin uses words like share, renew, license, modify, and liability without being those clauses, so loose precision is lower than strict precision. Negated promises ("we do not require binding arbitration", "we will never sell your personal information") are in the set so the strict scan can be checked for those false hits.
+`eval:prepare` splits the data 70/30 into dev and held-out, by group, with seed `S12-20261023`. It writes the split files and `MANIFEST.json`, which records sources, hashes, groups, counts, completeness and exposure. Once the held-out hash is frozen, changing that file aborts preparation unless `--refreeze` is passed. Invalid anchors, unknown labels, split leakage or hash mismatches abort both preparation and scoring.
 
-The strict patterns were written for these sentences. A high strict score here is a smoke check, not evidence about real policies.
+## Engines and rows
 
-## What this set is not
+- `loose` is the keyword baseline and `strict` is the shipped rules. Both run uncapped.
+- `on-device:<reported id or unknown>` comes only from a real `extension/eval.html` export (`model-run.jsonl`) that matches the manifest, split and core versions. A run on unsupported hardware produces an unavailable status artifact, and that row is not measured.
+- `strict-union-on-device` appears when a real model run exists.
 
-| Source | Why it is not in the repo |
-|---|---|
-| LexGLUE UNFAIR-ToS (CC BY 4.0) | Covers arbitration, unilateral change, and liability language, not auto-renewal or broad content licences. Not vendored in this pass. |
-| CUAD (CC BY 4.0) | Commercial contracts, not consumer terms. Not vendored. |
-| OPP-115 | The annotation files are research / non-commercial. They are not redistributed. |
-| ToS;DR browser extension | AGPL-3.0. Not used as code. |
+## Metrics
 
-A later labelled run has to record the licence, the split, and the per-category counts before anyone quotes a model score. Recorded JSON in the demo is a quote-or-drop example, not a model measurement.
+- Per category: TP, FP, FN, support, precision, recall and F1, plus micro and macro averages. Undefined denominators are shown as `undefined`, never as 0%.
+- Matching is maximum-cardinality and one-to-one within each item and category.
+- **detection:** a prediction that overlaps a labelled unit.
+- **exact:** equal original offsets.
+- **relaxed:** IoU ≥ 0.5. This threshold was frozen before any run.
+- Ambiguous quote-only predictions count as one unit, which may match through any recorded occurrence.
+- Failed or missing model items stay in the full target set.
+- The report adds a group-bootstrap interval for detection micro-F1 and an error audit.
 
-Provenance string in code: hand-written synthetic policies created for this repository on 2026-10-23.
+Sampled-set precision is not real-world prevalence precision. Freeze settings before held-out runs, and never tune on held-out results.

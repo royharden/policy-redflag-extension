@@ -1,55 +1,66 @@
 # Policy Red Flag
 
-A local scanner for six kinds of terms and privacy clauses: arbitration and class waiver, unilateral change, liability cap, data sale or sharing, auto-renewal, and broad content licence.
+Policy Red Flag is a Chrome (Manifest V3) extension, plus a small web lab, for reviewing a Terms of Service or Privacy page you choose. A keyless rules check flags six kinds of consumer red-flag clauses. Every finding shows the original quote, its section and a Jump link to the place on the page. An opt-in on-device model (Chrome's built-in Prompt API) can add findings where the hardware supports it.
 
-The baseline runs in the browser. Every kept flag is a verbatim slice of the text buffer, with character offsets. A model quote is kept only when it is a whitespace-normalized, case-sensitive substring of that same buffer. Anything else is dropped. There is no fuzzy match.
+It does not grade terms, score them or give legal advice. A verified quote proves the text is on the page. It does not prove the category is right or that the clause is enforceable. No findings never means the terms are safe.
 
-This repository was built in Dirty Mode. **Tests, the dev server, the production build, and the unpacked extension have not been run.**
+> **Status: source written, nothing executed.** This build was made in Dirty Mode: static checks only. No dependencies have been installed. No lockfile exists. Tests, type checks with the declared TypeScript, both builds, the unpacked extension, the on-device model and the evaluation scripts have not run. See [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md).
 
-## What is built
+## Categories
 
-- `src/core` — rulebooks, strict and loose baselines, quote check, grade, per-category precision/recall, and the hosted-model client.
-- `src/demo` — Vite + React page. Paste text, choose a rulebook, scan, check a recorded JSON draft, and read the synthetic evaluation table.
-- `extension/` and `src/extension` — Manifest V3 side panel. The toolbar click is the only page-read. It uses `activeTab` and injects `page-agent.js` on demand. There is no content script on every site.
-- `tests/` — Vitest files for the core. Not executed.
+| ID | Flags | Reasons |
+|---|---|---|
+| `auto_renewal` | recurring billing, renewal price changes, cancellation hurdles | `auto_renews`, `price_change_on_renewal`, `cancel_hurdle` |
+| `arbitration` | binding arbitration, class-action and jury waivers | `binding_arbitration`, `class_action_waiver`, `jury_waiver` |
+| `unilateral_change` | provider amendment rights, change-by-posting | `modify_any_time`, `notice_by_posting` |
+| `data_sale_or_share` | sale, third-party sharing, advertising sharing | `sale`, `sharing_third_party`, `sharing_advertising` |
+| `liability_cap` | monetary caps, damages exclusions (not bare AS IS) | `damages_cap`, `exclusion_of_damages` |
+| `broad_content_license` | perpetual/irrevocable, sublicensable, AI training of your content | `perpetual_irrevocable`, `sublicensable`, `ai_training` |
 
-## What is not here
+Presets: `consumer-core` (all six), `dispute-and-liability`, `privacy-sale` and `billing-and-content`. Any other toggle set is "custom".
 
-No database, accounts, Supabase project, or edge functions. No lockfile yet. No model API key in the repo. Optional keys are typed into the page (memory only) or stored in `chrome.storage.local` by the extension. A missing key produces an error and does not invent flags.
+## How it works
 
-The synthetic corpus in `src/core/fixtures.ts` is original sample text. UNFAIR-ToS, CUAD, and OPP-115 are not included. See `docs/evaluation.md`.
+1. You click the toolbar icon. The side panel opens, and the extension injects `page-agent.js` into the top frame of that tab only (`activeTab`). Only http and https pages are supported.
+2. The bridge captures the eligible page body. It excludes scripts, form fields, editable areas, navigation and hidden text. Text inside closed native `<details>` is included. Capture is capped at 200,000 characters.
+3. The strict rules emit whole sentences (or clauses), with negation scoped to each reason and clause. The shared validator then accepts only evidence it can locate exactly.
+4. The panel shows findings, coverage, Diagnostics (rejected candidates) and a Clear button. Jump re-checks the live page, opens a collapsed section if needed and highlights the quote. If the text has changed, Jump says so and asks you to capture again.
+5. The optional on-device model runs in the side panel, never in the worker. Its quotes go through the same validator. Unsupported hardware is reported as unavailable.
 
-## Demo, after a later install
+Scan data stays in `chrome.storage.session`: one scan per tab, at most three tabs and 6 MiB. It is cleared by Clear, navigation, closing the tab, or a browser or extension restart. Only your settings persist. See [docs/privacy-and-permissions.md](docs/privacy-and-permissions.md).
 
-```bash
-npm ci
+## Layout
+
+```text
+src/core/        shared TypeScript: contracts, normalization, validator, rules, parser, prompt, metrics, gold format,
+                 on-device adapter (imported only by extension pages); grade.ts and legacy/ are retained but unused
+src/extension/   service worker, side panel, local-model controls, eval.html runner, message/storage protocol
+extension/       manifest.json, page-agent.js (bridge), sidepanel.html, eval.html
+src/demo/        React paste/fixture lab (no tab access, no live inference)
+public/fixtures/ acme-terms.html: the synthetic page for the extension validation journey
+eval/            LABELLING.md rubric, seeds/ (original synthetic seed); gold/ is written by eval:prepare
+scripts/         prepare-gold.ts, evaluate.ts
+tests/           focused Vitest source (not executed)
+```
+
+## Commands (none have been run)
+
+From this folder:
+
+```text
+npm install              # first authorized install creates package-lock.json; review it, then use npm ci
+npm run typecheck
 npm test
-npm run dev
+npm run dev              # web lab; the fixture page is at /fixtures/acme-terms.html
+npm run build            # web lab -> dist/
+npm run build:extension  # extension -> dist-extension/ (load unpacked in Chrome)
+npm run eval:prepare     # freeze eval/gold/ from the local seed (and any approved local import)
+npm run eval -- --split dev
+npm run eval -- --split held-out --model-run path/to/model-run.jsonl
 ```
 
-`npm ci` needs a lockfile, which is not committed yet. Until that exists, `npm install` is the install that can create one. The page works with no `.env`. Copy `.env.example` only to change the public title.
+Measured numbers exist only in `results/results.json` and `results/results.md`, which `scripts/evaluate.ts` writes. Until those files exist, quality is **not measured**. The on-device model stays **not measured** until a real `extension/eval.html` export has been validated.
 
-Load the sample, leave Consumer core selected, and choose **Scan with baseline**. Then choose **Check recorded draft**. One quote from the sample should stay, and `this quote is not in the policy` should be dropped.
+## Licence
 
-## Extension, after a later build
-
-```bash
-npm run build:extension
-```
-
-Load `dist-extension` as an unpacked extension. Open an http or https page and click the toolbar icon. Browser pages and the Chrome Web Store cannot be scripted. The side panel cannot grant `activeTab` by itself.
-
-Hosted model calls need the optional host permission Chrome prompts for, and the endpoint must allow the request. On-device mode uses Chrome's `LanguageModel` when that browser has it.
-
-## Scripts
-
-| Script | Purpose |
-|---|---|
-| `npm run dev` | Demo only. Not the extension. |
-| `npm run build` | Typecheck and demo build to `dist/`. |
-| `npm run build:extension` | Extension package to `dist-extension/`. |
-| `npm test` | Vitest. Not run in the construction pass. |
-
-## Privacy
-
-A baseline scan does not leave the browser. Page text is sent only if you run a hosted model, and then only to the URL you typed. On-device mode uses the browser's built-in model. The grade is a weighted count of categories, not a legal opinion.
+MIT (see [LICENSE](LICENSE)). The code, fixtures and seed text are original. See [NOTICE](NOTICE).
