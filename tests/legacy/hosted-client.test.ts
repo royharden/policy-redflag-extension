@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  assertModelEndpoint,
-  completeChat,
-  ModelRequestError,
-  parseModelFlags,
-} from '../src/core/model';
+// Tests for the retained, unreachable hosted client (see the module header). Not product behavior.
+import { assertModelEndpoint, completeChat, ModelRequestError } from '../../src/core/legacy/hosted-client';
 
 describe('model endpoint', () => {
   it('allows public https and local http, and blocks metadata and private hosts', () => {
@@ -37,16 +33,5 @@ describe('completeChat', () => {
         async () => new Response('not-json', { status: 200 }),
       ),
     ).rejects.toThrow(/did not return JSON/);
-  });
-});
-
-describe('parseModelFlags', () => {
-  it('reads a fenced JSON object and rejects prose', () => {
-    const parsed = parseModelFlags('```json\n{"flags":[{"categoryId":"arbitration","quote":"binding arbitration"}]}\n```');
-    expect(parsed.error).toBeUndefined();
-    expect(parsed.candidates).toHaveLength(1);
-    expect(parsed.candidates[0]?.quote).toBe('binding arbitration');
-    expect(parseModelFlags('no flags here').error).toMatch(/did not return JSON/);
-    expect(parseModelFlags('{"note":"missing array"}').error).toMatch(/no flags array/);
   });
 });

@@ -1,3 +1,8 @@
+/**
+ * RETAINED HISTORICAL MODULE — NOT SELECTED BEHAVIOR.
+ * PLAN.md section 2: no A-F grade, numerical safety score or legal verdict. Nothing imports this file
+ * and it is not exported from src/core/index.ts or included in any result schema.
+ */
 import { CATEGORY_BY_ID } from './categories';
 import type { CategoryId, Grade } from './types';
 

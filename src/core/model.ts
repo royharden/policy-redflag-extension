@@ -1,168 +1,112 @@
-import { isSeverity, type Candidate } from './types';
+import { boundedPreview, LIMITS, type Candidate, type EngineId, type Rejection } from './types';
 
-export class ModelRequestError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'ModelRequestError';
-  }
+/**
+ * Strict model/recorded response parser (PLAN.md section 5).
+ * Accepts exactly one JSON object with a `flags` array, optionally wrapped in ONE outer JSON code fence,
+ * with surrounding whitespace. No think-tag stripping, brace scanning, string edits or prose repair.
+ * The hosted client that used to live here is retained, unreachable, in ./legacy/hosted-client.ts.
+ */
+
+export const PARSER_VERSION = 'parser/1';
+
+export type ParseFailureCode = 'bad_json' | 'bad_schema' | 'response_too_large' | 'too_many_candidates';
+
+export interface ParseItemError {
+  index: number;
+  preview: string;
+  detail: string;
 }
 
-export interface ChatSettings {
-  endpoint: string;
-  apiKey: string;
-  model: string;
+export type ParseOutcome =
+  | { ok: true; candidates: Candidate[]; itemErrors: ParseItemError[] }
+  | { ok: false; code: ParseFailureCode; detail: string; preview: string };
+
+const FENCE = /^```(?:json)?[ \t]*\r?\n([\s\S]*?)\r?\n```$/;
+const ALLOWED_FLAG_KEYS = new Set(['categoryId', 'reasonCode', 'quote', 'explanation', 'sectionId', 'start', 'end']);
+
+function failure(code: ParseFailureCode, detail: string, raw: string): ParseOutcome {
+  return { ok: false, code, detail, preview: boundedPreview(raw) };
 }
 
-const BLOCKED_HOSTS = new Set(['metadata.google.internal', 'metadata.google', 'instance-data']);
+export interface ParseOptions {
+  engine: EngineId;
+  engineVersion: string;
+  /** Recorded files may carry offsets; model offsets are dropped (models use the quote-only path). */
+  acceptOffsets?: boolean;
+  snapshotRef?: Candidate['snapshotRef'];
+}
 
-export function assertModelEndpoint(raw: string): URL {
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new ModelRequestError('Model endpoint must be a full URL.');
+export function parseFlagsResponse(raw: unknown, options: ParseOptions): ParseOutcome {
+  if (typeof raw !== 'string') return failure('bad_json', 'The response is not text.', String(raw));
+  if (raw.length > LIMITS.maxResponse) {
+    return failure('response_too_large', `The response exceeds ${LIMITS.maxResponse} UTF-16 units.`, raw);
   }
-  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  const local = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  if (local) {
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      throw new ModelRequestError('A local model endpoint must use http or https.');
+  let body = raw.trim();
+  if (body.startsWith('```')) {
+    const fenced = FENCE.exec(body);
+    if (!fenced || (fenced[1] ?? '').includes('```')) {
+      return failure('bad_json', 'Only one outer JSON code fence is allowed.', raw);
     }
-    return url;
+    body = (fenced[1] ?? '').trim();
   }
-  if (url.protocol !== 'https:') {
-    throw new ModelRequestError('A remote model endpoint must use https.');
-  }
-  if (BLOCKED_HOSTS.has(host) || host.endsWith('.internal') || isBlockedAddress(host)) {
-    throw new ModelRequestError(
-      'That host is blocked. Use a public https endpoint, or http://127.0.0.1 or http://localhost for a local model.',
-    );
-  }
-  return url;
-}
-
-function isBlockedAddress(host: string): boolean {
-  const match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
-  if (!match) return false;
-  const parts = match.slice(1).map((part) => Number(part));
-  if (parts.some((part) => part > 255)) return true;
-  const first = parts[0] ?? 0;
-  const second = parts[1] ?? 0;
-  if (first === 10 || first === 127 || first === 0) return true;
-  if (first === 169 && second === 254) return true;
-  if (first === 172 && second >= 16 && second <= 31) return true;
-  if (first === 192 && second === 168) return true;
-  if (first === 100 && second >= 64 && second <= 127) return true;
-  return false;
-}
-
-export function endpointPermissionPattern(endpoint: string): string {
-  const url = assertModelEndpoint(endpoint);
-  return `${url.protocol}//${url.host}/*`;
-}
-
-function readContent(content: unknown): string {
-  if (typeof content === 'string') return content;
-  if (!Array.isArray(content)) return '';
-  return content
-    .map((part) => {
-      if (typeof part === 'string') return part;
-      if (part && typeof part === 'object' && typeof (part as { text?: unknown }).text === 'string') {
-        return (part as { text: string }).text;
-      }
-      return '';
-    })
-    .join('');
-}
-
-export async function completeChat(
-  settings: ChatSettings,
-  prompt: string,
-  fetchImpl: typeof fetch = fetch,
-): Promise<string> {
-  if (!settings.apiKey.trim()) {
-    throw new ModelRequestError(
-      'Add an API key to run a hosted model. The key stays in this browser. A baseline scan does not need a key.',
-    );
-  }
-  if (!settings.model.trim()) {
-    throw new ModelRequestError('Add a model name for the hosted endpoint.');
-  }
-  const url = assertModelEndpoint(settings.endpoint);
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30_000);
-  try {
-    const response = await fetchImpl(url, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        authorization: `Bearer ${settings.apiKey}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: settings.model,
-        temperature: 0,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-    if (!response.ok) {
-      throw new ModelRequestError(
-        `The model endpoint returned HTTP ${response.status}. Check the URL, model name, and key. No flags were invented.`,
-      );
-    }
-    const body = await response.text();
-    if (body.length > 100_000) {
-      throw new ModelRequestError('The model response was too large to accept. No flags were invented.');
-    }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(body);
-    } catch {
-      throw new ModelRequestError('The model endpoint did not return JSON. No flags were invented.');
-    }
-    const content = (parsed as { choices?: { message?: { content?: unknown } }[] }).choices?.[0]?.message?.content;
-    const text = readContent(content);
-    if (!text.trim()) {
-      throw new ModelRequestError('The model returned an empty message. No flags were invented.');
-    }
-    return text;
-  } catch (error) {
-    if (error instanceof ModelRequestError) throw error;
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new ModelRequestError('The model request timed out after 30 seconds. No flags were invented.');
-    }
-    throw new ModelRequestError('The model request failed before any flags were accepted.');
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-export function parseModelFlags(
-  raw: string,
-  source: 'model' | 'recorded' = 'model',
-): { candidates: Candidate[]; error?: string } {
-  const stripped = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  if (!body.startsWith('{')) return failure('bad_json', 'The response must be one JSON object.', raw);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(stripped);
+    // JSON.parse rejects leading/trailing prose and multiple objects.
+    parsed = JSON.parse(body);
   } catch {
-    return { candidates: [], error: 'The model did not return JSON. No flags were added.' };
+    return failure('bad_json', 'The response is not a single valid JSON object.', raw);
   }
-  const flags = (parsed as { flags?: unknown }).flags;
-  if (!Array.isArray(flags)) {
-    return { candidates: [], error: 'The model JSON has no flags array. No flags were added.' };
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return failure('bad_schema', 'The response must be a JSON object.', raw);
+  }
+  const keys = Object.keys(parsed);
+  if (keys.length !== 1 || keys[0] !== 'flags') {
+    return failure('bad_schema', 'The object must contain only a "flags" array.', raw);
+  }
+  const flags = (parsed as { flags: unknown }).flags;
+  if (!Array.isArray(flags)) return failure('bad_schema', '"flags" must be an array.', raw);
+  if (flags.length > LIMITS.maxModelCandidates) {
+    return failure('too_many_candidates', `More than ${LIMITS.maxModelCandidates} flags; nothing was accepted.`, raw);
   }
   const candidates: Candidate[] = [];
-  for (const item of flags.slice(0, 30)) {
-    if (!item || typeof item !== 'object') continue;
+  const itemErrors: ParseItemError[] = [];
+  flags.forEach((item: unknown, index) => {
+    if (item === null || typeof item !== 'object' || Array.isArray(item)) {
+      itemErrors.push({ index, preview: boundedPreview(item), detail: 'A flag must be an object.' });
+      return;
+    }
     const row = item as Record<string, unknown>;
-    candidates.push({
-      categoryId: typeof row.categoryId === 'string' ? row.categoryId : '',
-      quote: typeof row.quote === 'string' ? row.quote : '',
-      severity: isSeverity(row.severity) ? row.severity : undefined,
-      note: typeof row.note === 'string' ? row.note.slice(0, 280) : undefined,
-      source,
-    });
-  }
-  return { candidates };
+    const unknownKey = Object.keys(row).find((key) => !ALLOWED_FLAG_KEYS.has(key));
+    if (unknownKey) {
+      itemErrors.push({ index, preview: boundedPreview(item), detail: `Unknown field "${boundedPreview(unknownKey)}".` });
+      return;
+    }
+    const candidate: Candidate = {
+      categoryId: row.categoryId,
+      quote: row.quote,
+      engine: options.engine,
+      engineVersion: options.engineVersion,
+    };
+    if ('reasonCode' in row) candidate.reasonCode = row.reasonCode;
+    if ('explanation' in row) candidate.explanation = row.explanation;
+    if ('sectionId' in row) candidate.sectionId = row.sectionId;
+    if (options.acceptOffsets && ('start' in row || 'end' in row)) {
+      candidate.start = row.start;
+      candidate.end = row.end;
+    }
+    if (options.snapshotRef) candidate.snapshotRef = options.snapshotRef;
+    candidates.push(candidate);
+  });
+  return { ok: true, candidates, itemErrors };
+}
+
+/** Malformed flag items become bad_schema rejections shown in Diagnostics. */
+export function itemErrorRejections(errors: readonly ParseItemError[], engine: EngineId): Rejection[] {
+  return errors.map((error) => ({
+    code: 'bad_schema',
+    engine,
+    preview: error.preview,
+    detail: `Flag ${error.index}: ${error.detail}`,
+  }));
 }
