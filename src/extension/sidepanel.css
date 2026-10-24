@@ -1,0 +1,68 @@
+:root {
+  color-scheme: light;
+  --paper: #f3efe4;
+  --ink: #1c1915;
+  --flag: #8f1d2c;
+  --line: #d9d0c1;
+  --muted: #5c564c;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 14px/1.45 "Segoe UI", sans-serif;
+}
+
+main { padding: 12px; }
+
+h1, h2 { font-family: Palatino, "Palatino Linotype", serif; }
+
+h1 { font-size: 1.4rem; margin: 0 0 8px; }
+
+h2 { font-size: 1.05rem; margin: 14px 0 6px; }
+
+label { display: block; margin: 8px 0 4px; font-weight: 650; }
+
+input, select, button { font: inherit; }
+
+input, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: white;
+  color: inherit;
+}
+
+button {
+  background: var(--flag);
+  color: white;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+
+.check { font-weight: 500; }
+
+.meta, .note { color: var(--muted); }
+
+.error { color: var(--flag); font-weight: 650; }
+
+blockquote {
+  margin: 6px 0;
+  padding-left: 8px;
+  border-left: 3px solid var(--flag);
+}
+
+.grade { font-family: Palatino, "Palatino Linotype", serif; font-size: 1.8rem; color: var(--flag); margin: 0; }

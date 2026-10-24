@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Policy Red Flag",
+  "version": "0.1.0",
+  "description": "Flags terms and privacy clauses on a page you choose, and drops any quote that is not in the page text.",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
+  "optional_host_permissions": ["https://*/*", "http://127.0.0.1/*", "http://localhost/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Scan this page for policy red flags"
+  },
+  "side_panel": {
+    "default_path": "extension/sidepanel.html"
+  }
+}
