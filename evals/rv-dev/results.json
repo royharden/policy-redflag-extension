@@ -1,0 +1,665 @@
+{
+  "resultsVersion": "results/1",
+  "generatedAt": "2026-10-27T01:58:38.560Z",
+  "split": "dev",
+  "manifest": {
+    "path": "eval/gold/MANIFEST.json",
+    "sha256": "5a4881e5c360c5c691418f83cdc3c36ab16ee7a49fd6708b91c8e6b88adfde0e",
+    "splitSha256": "fd719b27fdcdc0ea7112dcbdc326e30b422bda2f9ab76b9f57cf9a732f6c21ce",
+    "heldOutFrozen": {
+      "sha256": "949f6024eba477ec3b64e98dd3b93ef67ce4bcbf0dfcc23207304d3af548975f",
+      "frozenAt": "2026-10-26T21:13:11.499Z",
+      "history": []
+    }
+  },
+  "versions": {
+    "core": "core/1",
+    "rules": "rules-strict/1",
+    "loose": "rules-loose/1",
+    "metrics": "metrics/1",
+    "modelRun": null
+  },
+  "parameters": {
+    "matchModes": [
+      "detection",
+      "exact",
+      "relaxed"
+    ],
+    "relaxedIouThreshold": 0.5,
+    "bootstrapSamples": 1000,
+    "baselineDisplayLimit": null
+  },
+  "support": {
+    "items": 24,
+    "groups": 24,
+    "perCategory": {
+      "arbitration": {
+        "positives": 4,
+        "hardNegatives": 4,
+        "itemsEvaluated": 24
+      },
+      "unilateral_change": {
+        "positives": 3,
+        "hardNegatives": 3,
+        "itemsEvaluated": 24
+      },
+      "liability_cap": {
+        "positives": 3,
+        "hardNegatives": 3,
+        "itemsEvaluated": 24
+      },
+      "data_sale_or_share": {
+        "positives": 16,
+        "hardNegatives": 32,
+        "itemsEvaluated": 24
+      },
+      "auto_renewal": {
+        "positives": 14,
+        "hardNegatives": 29,
+        "itemsEvaluated": 24
+      },
+      "broad_content_license": {
+        "positives": 12,
+        "hardNegatives": 24,
+        "itemsEvaluated": 24
+      }
+    }
+  },
+  "provenance": [
+    {
+      "name": "s12-seed/1",
+      "kind": "original-synthetic",
+      "path": "eval/seeds/s12-seed-v1.json",
+      "sha256": "bee7e5b2473460d2b6acd4d4ab2e03b152302f78dd2ec756adc705bf616bfead",
+      "revision": "s12-seed/1",
+      "licence": "MIT, same as this repository. Original synthetic text written for this project; not copied from any dataset or real policy.",
+      "attribution": "S12-INT (Claude Opus 5.5), 2026-10-23"
+    }
+  ],
+  "sampling": "Synthetic seed documents with deliberately chosen hard negatives; precision on this sampled set is not real-world prevalence precision.",
+  "limitations": [
+    "Written after the strict rules by the same author. Self-authored bias; held-out results are regression evidence only. Imported items (if any) were not used to write the rules.",
+    "Detection counts a prediction overlapping a labelled unit; exact needs equal offsets; relaxed needs IoU >= 0.5.",
+    "Ambiguous quote-only predictions are one unit that may match through any recorded occurrence.",
+    "A located quote proves text presence, not category correctness; wrong-category real quotes count as FP/FN here.",
+    "On-device model: not measured (no validated eval.html model-run.jsonl was supplied)."
+  ],
+  "results": [
+    {
+      "engine": "loose",
+      "attempted": 24,
+      "status": {
+        "complete": 24
+      },
+      "shares": null,
+      "coverageUnits": null,
+      "scores": {
+        "detection": {
+          "mode": "detection",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 2,
+              "fp": 2,
+              "fn": 1,
+              "support": 3,
+              "precision": 0.5,
+              "recall": 0.6666666666666666,
+              "f1": 0.5714285714285715
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 1,
+              "fn": 0,
+              "support": 3,
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 12,
+              "fp": 17,
+              "fn": 4,
+              "support": 16,
+              "precision": 0.41379310344827586,
+              "recall": 0.75,
+              "f1": 0.5333333333333333
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 6,
+              "fn": 9,
+              "support": 14,
+              "precision": 0.45454545454545453,
+              "recall": 0.35714285714285715,
+              "f1": 0.4
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 9,
+              "fp": 14,
+              "fn": 3,
+              "support": 12,
+              "precision": 0.391304347826087,
+              "recall": 0.75,
+              "f1": 0.5142857142857143
+            }
+          ],
+          "micro": {
+            "tp": 35,
+            "fp": 43,
+            "fn": 17,
+            "support": 52,
+            "precision": 0.44871794871794873,
+            "recall": 0.6730769230769231,
+            "f1": 0.5384615384615384
+          },
+          "macro": {
+            "precision": 0.5135119128747315,
+            "recall": 0.753968253968254,
+            "f1": 0.6005772005772005,
+            "definedCategories": 6
+          }
+        },
+        "exact": {
+          "mode": "exact",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 2,
+              "fp": 2,
+              "fn": 1,
+              "support": 3,
+              "precision": 0.5,
+              "recall": 0.6666666666666666,
+              "f1": 0.5714285714285715
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 1,
+              "fn": 0,
+              "support": 3,
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 12,
+              "fp": 17,
+              "fn": 4,
+              "support": 16,
+              "precision": 0.41379310344827586,
+              "recall": 0.75,
+              "f1": 0.5333333333333333
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 6,
+              "fn": 9,
+              "support": 14,
+              "precision": 0.45454545454545453,
+              "recall": 0.35714285714285715,
+              "f1": 0.4
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 9,
+              "fp": 14,
+              "fn": 3,
+              "support": 12,
+              "precision": 0.391304347826087,
+              "recall": 0.75,
+              "f1": 0.5142857142857143
+            }
+          ],
+          "micro": {
+            "tp": 35,
+            "fp": 43,
+            "fn": 17,
+            "support": 52,
+            "precision": 0.44871794871794873,
+            "recall": 0.6730769230769231,
+            "f1": 0.5384615384615384
+          },
+          "macro": {
+            "precision": 0.5135119128747315,
+            "recall": 0.753968253968254,
+            "f1": 0.6005772005772005,
+            "definedCategories": 6
+          }
+        },
+        "relaxed": {
+          "mode": "relaxed",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 2,
+              "fp": 2,
+              "fn": 1,
+              "support": 3,
+              "precision": 0.5,
+              "recall": 0.6666666666666666,
+              "f1": 0.5714285714285715
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 1,
+              "fn": 0,
+              "support": 3,
+              "precision": 0.75,
+              "recall": 1,
+              "f1": 0.8571428571428571
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 12,
+              "fp": 17,
+              "fn": 4,
+              "support": 16,
+              "precision": 0.41379310344827586,
+              "recall": 0.75,
+              "f1": 0.5333333333333333
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 6,
+              "fn": 9,
+              "support": 14,
+              "precision": 0.45454545454545453,
+              "recall": 0.35714285714285715,
+              "f1": 0.4
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 9,
+              "fp": 14,
+              "fn": 3,
+              "support": 12,
+              "precision": 0.391304347826087,
+              "recall": 0.75,
+              "f1": 0.5142857142857143
+            }
+          ],
+          "micro": {
+            "tp": 35,
+            "fp": 43,
+            "fn": 17,
+            "support": 52,
+            "precision": 0.44871794871794873,
+            "recall": 0.6730769230769231,
+            "f1": 0.5384615384615384
+          },
+          "macro": {
+            "precision": 0.5135119128747315,
+            "recall": 0.753968253968254,
+            "f1": 0.6005772005772005,
+            "definedCategories": 6
+          }
+        }
+      },
+      "detectionMicroF1Bootstrap95": {
+        "low": 0.46846846846846846,
+        "high": 0.6074074074074075,
+        "samples": 1000
+      },
+      "errorAudit": {
+        "falsePositives": [
+          "seed:bill-01 [auto_renewal] Day passes are a one-time purchase and never renew.",
+          "seed:bill-01 [auto_renewal] Prepaid ten-class packs expire after six months and are not renewed or recharged.",
+          "seed:bill-02 [auto_renewal] Monthly plans do not renew automatically; you choose whether to buy another month.",
+          "seed:bill-02 [auto_renewal] Students can renew their verification each school year to keep the discount.",
+          "seed:bill-03 [auto_renewal] You can renew an expired permit at the front desk if you want one again.",
+          "seed:bill-07 [data_sale_or_share] We may change the cover price of single issues sold in shops.",
+          "seed:bill-10 [broad_content_license] Classroom licences are purchased by schools for one school year and expire in June.",
+          "seed:bill-10 [auto_renewal] Parents can renew a lost password from the sign-in screen.",
+          "seed:priv-01 [data_sale_or_share] Do not share your membership barcode with other people.",
+          "seed:priv-01 [data_sale_or_share] You can share your workout streak with friends from the app if you choose.",
+          "seed:priv-02 [data_sale_or_share] We will never sell your notes or the personal information in your account.",
+          "seed:priv-02 [data_sale_or_share] We may disclose information when a court order requires it.",
+          "seed:priv-03 [broad_content_license] Your personal data may be sold to third parties as part of our data licensing program.",
+          "seed:priv-03 [data_sale_or_share] We do not share your personal information with advertisers.",
+          "seed:priv-05 [data_sale_or_share] We never sell your personal information to anyone."
+        ],
+        "falseNegatives": [
+          "seed:bill-01 [auto_renewal] If you do not cancel before your billing date, we will charge the card on file for the next month.",
+          "seed:bill-03 [auto_renewal] Annual permits can only be cancelled by sending written notice by certified mail to our office.",
+          "seed:bill-03 [auto_renewal] Permits continue to bill each quarter until we receive your cancellation.",
+          "seed:bill-04 [auto_renewal] After your free trial ends, your plan converts to a paid subscription that recurs monthly.",
+          "seed:bill-04 [auto_renewal] To cancel, you must call our retention team during business hours.",
+          "seed:bill-05 [auto_renewal] An early termination fee of 25 dollars applies if you cancel within the first three months of your plan.",
+          "seed:bill-07 [auto_renewal] Print subscriptions continue to be billed every issue until you tell us to stop.",
+          "seed:bill-07 [auto_renewal] Cancellation requests are accepted only by telephone and no refunds are given for issues already shipped.",
+          "seed:bill-10 [auto_renewal] To cancel a subscription bought on our website, you must email support and wait for written confirmation.",
+          "seed:priv-02 [data_sale_or_share] Advertising networks may receive your device identifiers and browsing activity from our apps.",
+          "seed:priv-03 [data_sale_or_share] We may provide your personal information to data brokers who combine it with other sources.",
+          "seed:priv-07 [data_sale_or_share] We rent our subscriber list, including your name and mailing address, to other publishers.",
+          "seed:priv-08 [data_sale_or_share] We transfer your personal information to our parent company and its affiliates for their marketing.",
+          "seed:cont-04 [broad_content_license] We may transfer or sublicense the rights in your posts to any successor of our business.",
+          "seed:cont-05 [broad_content_license] You grant us the right to use the videos you upload to develop and train our artificial intelligence models."
+        ],
+        "totals": {
+          "falsePositives": 43,
+          "falseNegatives": 17
+        }
+      }
+    },
+    {
+      "engine": "strict",
+      "attempted": 24,
+      "status": {
+        "complete": 24
+      },
+      "shares": null,
+      "coverageUnits": null,
+      "scores": {
+        "detection": {
+          "mode": "detection",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "support": 4,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 10,
+              "fp": 0,
+              "fn": 6,
+              "support": 16,
+              "precision": 1,
+              "recall": 0.625,
+              "f1": 0.7692307692307693
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 6,
+              "fp": 0,
+              "fn": 8,
+              "support": 14,
+              "precision": 1,
+              "recall": 0.42857142857142855,
+              "f1": 0.6
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 10,
+              "fp": 0,
+              "fn": 2,
+              "support": 12,
+              "precision": 1,
+              "recall": 0.8333333333333334,
+              "f1": 0.9090909090909091
+            }
+          ],
+          "micro": {
+            "tp": 36,
+            "fp": 0,
+            "fn": 16,
+            "support": 52,
+            "precision": 1,
+            "recall": 0.6923076923076923,
+            "f1": 0.8181818181818181
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.814484126984127,
+            "f1": 0.8797202797202797,
+            "definedCategories": 6
+          }
+        },
+        "exact": {
+          "mode": "exact",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "support": 4,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 10,
+              "fp": 0,
+              "fn": 6,
+              "support": 16,
+              "precision": 1,
+              "recall": 0.625,
+              "f1": 0.7692307692307693
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 6,
+              "fp": 0,
+              "fn": 8,
+              "support": 14,
+              "precision": 1,
+              "recall": 0.42857142857142855,
+              "f1": 0.6
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 10,
+              "fp": 0,
+              "fn": 2,
+              "support": 12,
+              "precision": 1,
+              "recall": 0.8333333333333334,
+              "f1": 0.9090909090909091
+            }
+          ],
+          "micro": {
+            "tp": 36,
+            "fp": 0,
+            "fn": 16,
+            "support": 52,
+            "precision": 1,
+            "recall": 0.6923076923076923,
+            "f1": 0.8181818181818181
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.814484126984127,
+            "f1": 0.8797202797202797,
+            "definedCategories": 6
+          }
+        },
+        "relaxed": {
+          "mode": "relaxed",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 4,
+              "fp": 0,
+              "fn": 0,
+              "support": 4,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "support": 3,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 10,
+              "fp": 0,
+              "fn": 6,
+              "support": 16,
+              "precision": 1,
+              "recall": 0.625,
+              "f1": 0.7692307692307693
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 6,
+              "fp": 0,
+              "fn": 8,
+              "support": 14,
+              "precision": 1,
+              "recall": 0.42857142857142855,
+              "f1": 0.6
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 10,
+              "fp": 0,
+              "fn": 2,
+              "support": 12,
+              "precision": 1,
+              "recall": 0.8333333333333334,
+              "f1": 0.9090909090909091
+            }
+          ],
+          "micro": {
+            "tp": 36,
+            "fp": 0,
+            "fn": 16,
+            "support": 52,
+            "precision": 1,
+            "recall": 0.6923076923076923,
+            "f1": 0.8181818181818181
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.814484126984127,
+            "f1": 0.8797202797202797,
+            "definedCategories": 6
+          }
+        }
+      },
+      "detectionMicroF1Bootstrap95": {
+        "low": 0.7105263157894737,
+        "high": 0.9,
+        "samples": 1000
+      },
+      "errorAudit": {
+        "falsePositives": [],
+        "falseNegatives": [
+          "seed:bill-01 [auto_renewal] If you do not cancel before your billing date, we will charge the card on file for the next month.",
+          "seed:bill-02 [auto_renewal] Quillnote Pro is billed annually and renews at the then-current list price.",
+          "seed:bill-03 [auto_renewal] Annual permits can only be cancelled by sending written notice by certified mail to our office.",
+          "seed:bill-04 [auto_renewal] After your free trial ends, your plan converts to a paid subscription that recurs monthly.",
+          "seed:bill-04 [auto_renewal] To cancel, you must call our retention team during business hours.",
+          "seed:bill-07 [auto_renewal] Print subscriptions continue to be billed every issue until you tell us to stop.",
+          "seed:bill-07 [auto_renewal] Cancellation requests are accepted only by telephone and no refunds are given for issues already shipped.",
+          "seed:bill-10 [auto_renewal] To cancel a subscription bought on our website, you must email support and wait for written confirmation.",
+          "seed:priv-01 [data_sale_or_share] We share your contact details with partner gyms so they can send you their own offers.",
+          "seed:priv-02 [data_sale_or_share] Advertising networks may receive your device identifiers and browsing activity from our apps.",
+          "seed:priv-05 [data_sale_or_share] We may sell or rent your name, address and order history to other food brands.",
+          "seed:priv-07 [data_sale_or_share] We rent our subscriber list, including your name and mailing address, to other publishers.",
+          "seed:priv-08 [data_sale_or_share] We may sell de-identified browsing data together with your account email to research firms.",
+          "seed:priv-10 [data_sale_or_share] Parent email addresses may be sold to companies that sell school supplies.",
+          "seed:cont-02 [broad_content_license] By posting a story you give Wordloft an irrevocable license to publish, adapt and translate it."
+        ],
+        "totals": {
+          "falsePositives": 0,
+          "falseNegatives": 16
+        }
+      }
+    }
+  ]
+}
