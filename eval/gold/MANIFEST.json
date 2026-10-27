@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "gold/1",
+  "rubricVersion": "rubric/1",
+  "seed": "S12-20261023",
+  "devFraction": 0.7,
+  "sources": [
+    {
+      "name": "s12-seed/1",
+      "kind": "original-synthetic",
+      "path": "eval/seeds/s12-seed-v1.json",
+      "sha256": "bee7e5b2473460d2b6acd4d4ab2e03b152302f78dd2ec756adc705bf616bfead",
+      "revision": "s12-seed/1",
+      "licence": "MIT, same as this repository. Original synthetic text written for this project; not copied from any dataset or real policy.",
+      "attribution": "S12-INT (Claude Opus 5.5), 2026-10-23"
+    }
+  ],
+  "splits": {
+    "dev": {
+      "file": "dev.jsonl",
+      "sha256": "fd719b27fdcdc0ea7112dcbdc326e30b422bda2f9ab76b9f57cf9a732f6c21ce",
+      "items": 24,
+      "groups": 24
+    },
+    "held-out": {
+      "file": "held-out.jsonl",
+      "sha256": "949f6024eba477ec3b64e98dd3b93ef67ce4bcbf0dfcc23207304d3af548975f",
+      "items": 9,
+      "groups": 9
+    }
+  },
+  "groups": {
+    "cont-01": "dev",
+    "bill-07": "dev",
+    "priv-03": "dev",
+    "disp-03": "dev",
+    "bill-05": "dev",
+    "priv-08": "dev",
+    "priv-05": "dev",
+    "priv-02": "dev",
+    "priv-01": "dev",
+    "bill-02": "dev",
+    "priv-07": "dev",
+    "cont-06": "dev",
+    "disp-02": "dev",
+    "cont-04": "dev",
+    "priv-10": "dev",
+    "cont-03": "dev",
+    "cont-05": "dev",
+    "bill-10": "dev",
+    "bill-01": "dev",
+    "bill-04": "dev",
+    "bill-03": "dev",
+    "cont-02": "dev",
+    "priv-06": "dev",
+    "disp-01": "dev",
+    "cont-10": "held-out",
+    "cont-08": "held-out",
+    "bill-08": "held-out",
+    "bill-06": "held-out",
+    "cont-09": "held-out",
+    "priv-04": "held-out",
+    "priv-09": "held-out",
+    "bill-09": "held-out",
+    "cont-07": "held-out"
+  },
+  "counts": {
+    "dev": {
+      "arbitration": {
+        "positives": 4,
+        "hardNegatives": 4,
+        "itemsEvaluated": 24
+      },
+      "unilateral_change": {
+        "positives": 3,
+        "hardNegatives": 3,
+        "itemsEvaluated": 24
+      },
+      "liability_cap": {
+        "positives": 3,
+        "hardNegatives": 3,
+        "itemsEvaluated": 24
+      },
+      "data_sale_or_share": {
+        "positives": 16,
+        "hardNegatives": 32,
+        "itemsEvaluated": 24
+      },
+      "auto_renewal": {
+        "positives": 14,
+        "hardNegatives": 29,
+        "itemsEvaluated": 24
+      },
+      "broad_content_license": {
+        "positives": 12,
+        "hardNegatives": 24,
+        "itemsEvaluated": 24
+      }
+    },
+    "held-out": {
+      "arbitration": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "unilateral_change": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "liability_cap": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "data_sale_or_share": {
+        "positives": 4,
+        "hardNegatives": 8,
+        "itemsEvaluated": 9
+      },
+      "auto_renewal": {
+        "positives": 9,
+        "hardNegatives": 11,
+        "itemsEvaluated": 9
+      },
+      "broad_content_license": {
+        "positives": 8,
+        "hardNegatives": 16,
+        "itemsEvaluated": 9
+      }
+    }
+  },
+  "completeness": {
+    "complete": 33,
+    "partial": 0
+  },
+  "mapping": [],
+  "excludedLabels": {},
+  "tuningExposure": "Written after the strict rules by the same author. Self-authored bias; held-out results are regression evidence only. Imported items (if any) were not used to write the rules.",
+  "heldOutFrozen": {
+    "sha256": "949f6024eba477ec3b64e98dd3b93ef67ce4bcbf0dfcc23207304d3af548975f",
+    "frozenAt": "2026-10-26T21:13:11.499Z",
+    "history": []
+  }
+}
