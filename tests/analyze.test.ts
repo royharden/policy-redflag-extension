@@ -38,6 +38,20 @@ describe('analyze: recorded grounding demo', () => {
     expect(ambiguous?.occurrences).toHaveLength(2);
   });
 
+  it('preserves expansion and ambiguity when recorded evidence is combined with exact rules', () => {
+    // what_bug_this_catches: the actual lab combines both engines; rule-only display
+    // representatives previously hid model expansion and occurrence choices.
+    const parsed = parseFlagsResponse(RECORDED_DRAFT, { engine: 'recorded', engineVersion: 'recorded/1', acceptOffsets: true });
+    if (!parsed.ok) throw new Error(parsed.detail);
+    const { result: combined, predictions } = analyze({ snapshot, enabledCategoryIds: CATEGORY_IDS, candidates: [...scanStrict(snapshot.text), ...parsed.candidates] });
+    const expanded = combined.findings.find((item) => item.expanded);
+    expect(expanded?.occurrences[0]?.matched.start).toBeGreaterThan(expanded!.occurrences[0]!.start);
+    expect(expanded?.quote).toContain('machine learning models');
+    expect(combined.findings.find((item) => item.ambiguous)?.occurrences).toHaveLength(2);
+    expect(combined.rejections.map((item) => item.code)).toEqual(['not_found', 'not_found']);
+    expect(predictions.length).toBeGreaterThan(combined.findings.length);
+  });
+
   it('lets a wrong-category real quote pass grounding (semantic error, not a quote rejection)', () => {
     const audit = recorded(SEMANTIC_AUDIT_DRAFT);
     expect(audit.findings).toHaveLength(1);
