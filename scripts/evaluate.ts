@@ -66,6 +66,9 @@ function loadGold(manifestPath: string, split: SplitName) {
     if (sha256(item.text) !== item.textHash) fail(`text hash mismatch for ${item.id}`);
     const problems = validateGoldItem(item);
     if (problems.length) fail(problems.join('; '));
+    // This scorer has no per-unit completeness mask. Refuse unknown negatives rather
+    // than converting missing annotations into false positives or invented precision.
+    if (item.labelCompleteness !== 'complete') fail(`item ${item.id}: partial or incomplete labels cannot be scored; complete the evaluated categories first`);
   }
   return { manifest, manifestHash: sha256(manifestText), splitHash: entry.sha256, items };
 }
