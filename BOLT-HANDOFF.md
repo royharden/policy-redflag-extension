@@ -1,6 +1,6 @@
 # Bolt handoff: Policy Red Flag
 
-Updated 2026-10-26. **Inspect-and-prepare only.** Local builds and baseline evaluation have run; independent acceptance and browser validation are pending. Nothing has been imported or published.
+Updated 2026-10-26. **Inspect-and-prepare only.** Install, 130 tests, types, both builds and synthetic evaluation passed independent scoped review. Chrome lab and bridge DOM checks ran. Full acceptance is blocked on actual toolbar/panel/lifecycle validation after Chrome refused automated activation. Nothing has been imported or published.
 
 ## What Bolt hosts
 
@@ -22,13 +22,15 @@ Bolt hosts only the **web lab** (React + Vite) and the static fixture page `publ
 | Command | Output | Status |
 |---|---|---|
 | `npm ci --ignore-scripts` | `node_modules/` from frozen lock | exit 0 |
-| `npm run typecheck` / `npm test -- --maxWorkers=1 --minWorkers=1` | — | exit 0; 57 tests |
-| `npm run dev -- --host 127.0.0.1 --port <claimed-port> --strictPort` | lab and fixture | started at claimed 22801; browser pending |
+| `npm run typecheck` / `npm test -- --maxWorkers=1 --minWorkers=1` | — | exit 0; 130 tests across 14 files, no exclusions |
+| `npm run dev -- --host 127.0.0.1 --port <claimed-port> --strictPort` | lab and fixture | ran at claimed 22801; Chrome lab/DOM checks passed; real extension gesture pending |
 | `npm run build` | `dist/` (lab + fixtures) | exit 0 |
 | `npm run build:extension` | `dist-extension/` | exit 0; not for Bolt |
 | `npm run eval:prepare`, dev then held-out `npm run eval` | `eval/gold/`, `results/` | exit 0; synthetic regression only |
 
-## Acceptance checks (all pending)
+## Web acceptance observations
+
+The local Chrome lab showed all six rule categories, billing/content filtering, invalidation after changing categories, two fabricated-quote rejections, expanded/repeated recorded evidence and the semantic-audit explanation. Measured reports rendered from the committed artifacts. The extension's actual gesture and lifecycle validation remains separate and blocked; these observations do not establish it.
 
 | Check | Expected |
 |---|---|
