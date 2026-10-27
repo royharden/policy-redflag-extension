@@ -1,5 +1,22 @@
 # Development status
 
+## Latest independent review and runtime checkpoint — 2026-10-26
+
+Full acceptance is **blocked**, not complete. Product candidate 2eeb9c9 includes evaluation fixes ce9b011/31d6a43, mixed-engine evidence fix ebc482e and the independent RV suites. Clean INT and RV runs each passed all 130 tests in 14 files with no exclusions/skips, real TypeScript and both builds. V0 install/build scope and V2 evaluation scope have independent PASS.
+
+- V2 now checks core, prompt, parser, adapter and actual extension-manifest build identity before accepting ordinary or unavailable artifacts. Partial labels fail explicitly rather than becoming unknown negatives. Gold groups/hashes/anchors/floors and missing/failed-target handling pass independent regressions. No rules or frozen labels were tuned after held-out results.
+- The real Chrome lab ran rules, recorded candidates, semantic audit and rulebook invalidation. Combining rules with recorded evidence now visibly preserves expansion and two repeated occurrences; scoring predictions remain independent of display folding.
+- Exact shipped page-agent.js ran against the actual synthetic fixture DOM using a synthetic message adapter: body/footer/details capture; nav/hidden/form exclusions; native-details reveal; virtual-separator Jump/highlights; idempotence; word-mutation staleness; release and 200000-unit truncation all passed. This is scoped DOM evidence, not extension authorization or worker/panel integration.
+- The unpacked service worker and eval.html loaded in disposable Chrome 148; eval.html verified and loaded all 33 bundled frozen items and reported manifest build 0.2.0. The LanguageModel API exists, but no activation, model download or actual inference was performed. Quality remains unmeasured.
+- Chrome refused CDP Extensions.triggerAction with -32000 `Method not allowed`. No bypass or synthetic activeTab grant was used. Actual toolbar capture, side-panel Jump, real two-tab/navigation/Clear/reopen/session/worker-suspension remain unverified.
+- Independent V1-r2 is RETURN for the remaining platform evidence, while confirming the display fix and green combined tests/builds. A subsequent V1 review must request HIGH effort after two returns. Final full-plan acceptance and master integration have not occurred.
+
+Evidence/verdicts and the specific operator requirement are in the outer agentops/full-20261026 records and ROY-20261026-toolbar-platform.md / ROY-20261026-rv-extension-journey.md. No SQL/database applies. Independent second labelling/expanded real-world evaluation, capable-device model measurements, Bolt import and distribution remain unvalidated or outside this run's authorization. No publication or credentials were used.
+
+Historical checkpoints below are preserved; their pending/old test counts are superseded only by the explicit current receipts above.
+
+---
+
 ## FULL-mode validation — 2026-10-26
 
 Dirty Mode was closed by Roy at 4:50 PM ET. S12-INT reuses baseline 155ddd9 in FULL-INT on full/int. Independent S12-RV acceptance is required before integration to master.

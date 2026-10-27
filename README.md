@@ -4,7 +4,7 @@ Policy Red Flag is a Chrome (Manifest V3) extension, plus a small web lab, for r
 
 It does not grade terms, score them or give legal advice. A verified quote proves the text is on the page. It does not prove the category is right or that the clause is enforceable. No findings never means the terms are safe.
 
-> **Status: full-mode validation in progress (2026-10-26).** A frozen dependency install, TypeScript check, 57 tests, both builds, original gold preparation and dev/held-out baseline scoring have run successfully. Browser journeys and independent acceptance remain pending. On-device model quality is not measured. See [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md).
+> **Status: full acceptance blocked (2026-10-26).** Frozen install, TypeScript, all 130 tests, both builds and original synthetic baseline evaluation passed, including independent review. Real Chrome lab and bridge DOM checks ran. Actual toolbar → side panel capture and integrated lifecycle checks remain unverified: Chrome refused the automated action command. The extension is not accepted as runtime complete. On-device model quality is not measured. See [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md).
 
 ## Categories
 
