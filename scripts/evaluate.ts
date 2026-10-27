@@ -17,9 +17,14 @@ import { LOOSE_VERSION, RULES_VERSION, scanLoose, scanStrict } from '../src/core
 import { formatRate, METRICS_VERSION, RELAXED_IOU_THRESHOLD, scoreSpans, type MatchMode, type ScoreCard, type SpanLabel } from '../src/core/evaluate';
 import { GOLD_SCHEMA_VERSION, rng, seedHash, SPLITS, validateGoldItem, type GoldItem, type GoldManifest, type SplitName } from '../src/core/gold';
 import { CORE_VERSION, type CategoryId, type Interval } from '../src/core/types';
+import { PROMPT_VERSION } from '../src/core/prompt';
+import { PARSER_VERSION } from '../src/core/model';
+import { ADAPTER_VERSION } from '../src/core/on-device';
 
 // fileURLToPath decodes %20 etc. (the project path contains a space) and handles Windows drive letters.
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// eval.html exports chrome.runtime.getManifest().version, not the npm package version.
+const BUILD_VERSION = (JSON.parse(readFileSync(path.join(ROOT, 'extension/manifest.json'), 'utf8')) as { version: string }).version;
 const MODES: MatchMode[] = ['detection', 'exact', 'relaxed'];
 const BOOTSTRAP_SAMPLES = 1000;
 
@@ -61,6 +66,9 @@ function loadGold(manifestPath: string, split: SplitName) {
     if (sha256(item.text) !== item.textHash) fail(`text hash mismatch for ${item.id}`);
     const problems = validateGoldItem(item);
     if (problems.length) fail(problems.join('; '));
+    // This scorer has no per-unit completeness mask. Refuse unknown negatives rather
+    // than converting missing annotations into false positives or invented precision.
+    if (item.labelCompleteness !== 'complete') fail(`item ${item.id}: partial or incomplete labels cannot be scored; complete the evaluated categories first`);
   }
   return { manifest, manifestHash: sha256(manifestText), splitHash: entry.sha256, items };
 }
@@ -119,14 +127,16 @@ function modelRow(runPath: string, items: readonly GoldItem[], gold: ReturnType<
   const header = records[0];
   if (!header || header.recordType !== 'header' || header.format !== 'model-run/1') fail('model run has no model-run/1 header');
   if (header.manifestHash !== gold.manifestHash) fail('model run was made against a different manifest');
-  const status = records.find((record) => record.recordType === 'status');
-  if (status && status.status === 'unavailable') {
-    // Unsupported hardware: an unavailable artifact, never a zero-prediction row.
-    return { row: null, header, note: `On-device model unavailable (${String(status.failureCode)}); not measured.` };
-  }
   if (header.splitName !== split || header.splitHash !== gold.splitHash) fail('model run split/hash does not match the requested split');
   const versions = header.versions as Record<string, string> | undefined;
-  if (versions?.core !== CORE_VERSION) fail(`model run core version ${versions?.core} does not match ${CORE_VERSION}`);
+  for (const [key, expected] of Object.entries({ core: CORE_VERSION, prompt: PROMPT_VERSION, parser: PARSER_VERSION, adapter: ADAPTER_VERSION, build: BUILD_VERSION })) {
+    if (versions?.[key] !== expected) fail(`model run ${key} version ${versions?.[key]} does not match ${expected}`);
+  }
+  const status = records.find((record) => record.recordType === 'status');
+  if (status && status.status === 'unavailable') {
+    // Unsupported hardware: validate provenance first, then omit numerical model rows.
+    return { row: null, header, note: `On-device model unavailable (${String(status.failureCode)}); not measured.` };
+  }
   const byId = new Map(items.map((item) => [item.id, item]));
   const predictions = new Map<string, SpanLabel[]>();
   const statusCounts: Record<string, number> = {};
