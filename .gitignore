@@ -18,3 +18,6 @@ ArchiveManager-creds.txt
 .venv/
 coverage/
 .cache/
+
+# Reviewer-generated temporary model outputs (not acceptance evidence)
+/tests/acceptance/.rv-model-*/
