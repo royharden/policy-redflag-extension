@@ -273,6 +273,12 @@ export function analyze(input: AnalyzeInput): AnalyzeOutput {
     if (existing) {
       if (!existing.reasonCodes.includes(prediction.reasonCode)) existing.reasonCodes.push(prediction.reasonCode);
       mergeProvenance(existing.provenance, prediction.provenance);
+      if (prediction.expanded && !existing.expanded) {
+        // Equal context spans can come from an exact rule and an expanded model quote.
+        // Keep the model's matched subspan with its expansion disclosure.
+        existing.expanded = true;
+        existing.occurrences = prediction.occurrences;
+      }
       continue;
     }
     const first = prediction.occurrences[0] as Occurrence;
@@ -302,7 +308,10 @@ export function analyze(input: AnalyzeInput): AnalyzeOutput {
   }));
   // Overlapping, non-identical findings of one category: keep the first in deterministic order.
   const representatives: Finding[] = [];
-  for (const finding of sorted) {
+  // A quote-only prediction with explicit alternatives must survive overlap folding
+  // with exact rule hits at those same locations. Scoring copies above stay unchanged.
+  const displayOrder = [...sorted].sort((left, right) => Number(right.ambiguous) - Number(left.ambiguous) || compareFindings(left, right));
+  for (const finding of displayOrder) {
     const holder = representatives.find((item) => item.categoryId === finding.categoryId && overlaps(item, finding));
     if (holder) {
       holder.overlapping += 1;
@@ -312,6 +321,7 @@ export function analyze(input: AnalyzeInput): AnalyzeOutput {
     }
     representatives.push(finding);
   }
+  representatives.sort(compareFindings);
 
   const findingLimitReached = displayLimit !== null && representatives.length > displayLimit;
   const findings = findingLimitReached ? representatives.slice(0, displayLimit as number) : representatives;

@@ -4,7 +4,7 @@ Policy Red Flag is a Chrome (Manifest V3) extension, plus a small web lab, for r
 
 It does not grade terms, score them or give legal advice. A verified quote proves the text is on the page. It does not prove the category is right or that the clause is enforceable. No findings never means the terms are safe.
 
-> **Status: source written, nothing executed.** This build was made in Dirty Mode: static checks only. No dependencies have been installed. No lockfile exists. Tests, type checks with the declared TypeScript, both builds, the unpacked extension, the on-device model and the evaluation scripts have not run. See [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md).
+> **Status: full acceptance blocked (2026-10-26).** Frozen install, TypeScript, all 130 tests, both builds and original synthetic baseline evaluation passed, including independent review. Real Chrome lab and bridge DOM checks ran. Actual toolbar → side panel capture and integrated lifecycle checks remain unverified: Chrome refused the automated action command. The extension is not accepted as runtime complete. On-device model quality is not measured. See [DEVELOPMENT-STATUS.md](DEVELOPMENT-STATUS.md).
 
 ## Categories
 
@@ -40,18 +40,18 @@ src/demo/        React paste/fixture lab (no tab access, no live inference)
 public/fixtures/ acme-terms.html: the synthetic page for the extension validation journey
 eval/            LABELLING.md rubric, seeds/ (original synthetic seed); gold/ is written by eval:prepare
 scripts/         prepare-gold.ts, evaluate.ts
-tests/           focused Vitest source (not executed)
+tests/           focused Vitest tests; execution details in DEVELOPMENT-STATUS.md
 ```
 
-## Commands (none have been run)
+## Commands
 
 From this folder:
 
 ```text
-npm install              # first authorized install creates package-lock.json; review it, then use npm ci
+npm ci --ignore-scripts  # install the committed frozen dependency graph
 npm run typecheck
 npm test
-npm run dev              # web lab; the fixture page is at /fixtures/acme-terms.html
+npm run dev -- --host 127.0.0.1 --port <claimed-port> --strictPort
 npm run build            # web lab -> dist/
 npm run build:extension  # extension -> dist-extension/ (load unpacked in Chrome)
 npm run eval:prepare     # freeze eval/gold/ from the local seed (and any approved local import)
@@ -60,6 +60,8 @@ npm run eval -- --split held-out --model-run path/to/model-run.jsonl
 ```
 
 Measured numbers exist only in `results/results.json` and `results/results.md`, which `scripts/evaluate.ts` writes. Until those files exist, quality is **not measured**. The on-device model stays **not measured** until a real `extension/eval.html` export has been validated.
+
+The committed report is the original synthetic held-out regression run. Its labels were written with exposure to the rules; it is not an independent real-world accuracy estimate. Three categories have no held-out support. Read the report's support, missed findings and limitations before interpreting its numbers. Development-server ports must follow the project's agent-ports claim/check procedure.
 
 ## Licence
 

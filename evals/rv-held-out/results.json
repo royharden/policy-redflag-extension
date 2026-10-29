@@ -1,0 +1,647 @@
+{
+  "resultsVersion": "results/1",
+  "generatedAt": "2026-10-27T01:58:42.340Z",
+  "split": "held-out",
+  "manifest": {
+    "path": "eval/gold/MANIFEST.json",
+    "sha256": "5a4881e5c360c5c691418f83cdc3c36ab16ee7a49fd6708b91c8e6b88adfde0e",
+    "splitSha256": "949f6024eba477ec3b64e98dd3b93ef67ce4bcbf0dfcc23207304d3af548975f",
+    "heldOutFrozen": {
+      "sha256": "949f6024eba477ec3b64e98dd3b93ef67ce4bcbf0dfcc23207304d3af548975f",
+      "frozenAt": "2026-10-26T21:13:11.499Z",
+      "history": []
+    }
+  },
+  "versions": {
+    "core": "core/1",
+    "rules": "rules-strict/1",
+    "loose": "rules-loose/1",
+    "metrics": "metrics/1",
+    "modelRun": null
+  },
+  "parameters": {
+    "matchModes": [
+      "detection",
+      "exact",
+      "relaxed"
+    ],
+    "relaxedIouThreshold": 0.5,
+    "bootstrapSamples": 1000,
+    "baselineDisplayLimit": null
+  },
+  "support": {
+    "items": 9,
+    "groups": 9,
+    "perCategory": {
+      "arbitration": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "unilateral_change": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "liability_cap": {
+        "positives": 0,
+        "hardNegatives": 0,
+        "itemsEvaluated": 9
+      },
+      "data_sale_or_share": {
+        "positives": 4,
+        "hardNegatives": 8,
+        "itemsEvaluated": 9
+      },
+      "auto_renewal": {
+        "positives": 9,
+        "hardNegatives": 11,
+        "itemsEvaluated": 9
+      },
+      "broad_content_license": {
+        "positives": 8,
+        "hardNegatives": 16,
+        "itemsEvaluated": 9
+      }
+    }
+  },
+  "provenance": [
+    {
+      "name": "s12-seed/1",
+      "kind": "original-synthetic",
+      "path": "eval/seeds/s12-seed-v1.json",
+      "sha256": "bee7e5b2473460d2b6acd4d4ab2e03b152302f78dd2ec756adc705bf616bfead",
+      "revision": "s12-seed/1",
+      "licence": "MIT, same as this repository. Original synthetic text written for this project; not copied from any dataset or real policy.",
+      "attribution": "S12-INT (Claude Opus 5.5), 2026-10-23"
+    }
+  ],
+  "sampling": "Synthetic seed documents with deliberately chosen hard negatives; precision on this sampled set is not real-world prevalence precision.",
+  "limitations": [
+    "Written after the strict rules by the same author. Self-authored bias; held-out results are regression evidence only. Imported items (if any) were not used to write the rules.",
+    "Detection counts a prediction overlapping a labelled unit; exact needs equal offsets; relaxed needs IoU >= 0.5.",
+    "Ambiguous quote-only predictions are one unit that may match through any recorded occurrence.",
+    "A located quote proves text presence, not category correctness; wrong-category real quotes count as FP/FN here.",
+    "On-device model: not measured (no validated eval.html model-run.jsonl was supplied)."
+  ],
+  "results": [
+    {
+      "engine": "loose",
+      "attempted": 9,
+      "status": {
+        "complete": 9
+      },
+      "shares": null,
+      "coverageUnits": null,
+      "scores": {
+        "detection": {
+          "mode": "detection",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 8,
+              "fp": 2,
+              "fn": 1,
+              "support": 9,
+              "precision": 0.8,
+              "recall": 0.8888888888888888,
+              "f1": 0.8421052631578948
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 6,
+              "fp": 7,
+              "fn": 2,
+              "support": 8,
+              "precision": 0.46153846153846156,
+              "recall": 0.75,
+              "f1": 0.5714285714285714
+            }
+          ],
+          "micro": {
+            "tp": 18,
+            "fp": 12,
+            "fn": 3,
+            "support": 21,
+            "precision": 0.6,
+            "recall": 0.8571428571428571,
+            "f1": 0.7058823529411764
+          },
+          "macro": {
+            "precision": 0.610989010989011,
+            "recall": 0.8796296296296297,
+            "f1": 0.7136021872863978,
+            "definedCategories": 3
+          }
+        },
+        "exact": {
+          "mode": "exact",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 8,
+              "fp": 2,
+              "fn": 1,
+              "support": 9,
+              "precision": 0.8,
+              "recall": 0.8888888888888888,
+              "f1": 0.8421052631578948
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 6,
+              "fp": 7,
+              "fn": 2,
+              "support": 8,
+              "precision": 0.46153846153846156,
+              "recall": 0.75,
+              "f1": 0.5714285714285714
+            }
+          ],
+          "micro": {
+            "tp": 18,
+            "fp": 12,
+            "fn": 3,
+            "support": 21,
+            "precision": 0.6,
+            "recall": 0.8571428571428571,
+            "f1": 0.7058823529411764
+          },
+          "macro": {
+            "precision": 0.610989010989011,
+            "recall": 0.8796296296296297,
+            "f1": 0.7136021872863978,
+            "definedCategories": 3
+          }
+        },
+        "relaxed": {
+          "mode": "relaxed",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 4,
+              "fp": 3,
+              "fn": 0,
+              "support": 4,
+              "precision": 0.5714285714285714,
+              "recall": 1,
+              "f1": 0.7272727272727273
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 8,
+              "fp": 2,
+              "fn": 1,
+              "support": 9,
+              "precision": 0.8,
+              "recall": 0.8888888888888888,
+              "f1": 0.8421052631578948
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 6,
+              "fp": 7,
+              "fn": 2,
+              "support": 8,
+              "precision": 0.46153846153846156,
+              "recall": 0.75,
+              "f1": 0.5714285714285714
+            }
+          ],
+          "micro": {
+            "tp": 18,
+            "fp": 12,
+            "fn": 3,
+            "support": 21,
+            "precision": 0.6,
+            "recall": 0.8571428571428571,
+            "f1": 0.7058823529411764
+          },
+          "macro": {
+            "precision": 0.610989010989011,
+            "recall": 0.8796296296296297,
+            "f1": 0.7136021872863978,
+            "definedCategories": 3
+          }
+        }
+      },
+      "detectionMicroF1Bootstrap95": {
+        "low": 0.6341463414634146,
+        "high": 0.7719298245614035,
+        "samples": 1000
+      },
+      "errorAudit": {
+        "falsePositives": [
+          "seed:bill-06 [auto_renewal] Our servers are powered by renewable energy.",
+          "seed:bill-08 [broad_content_license] Lifetime licences are paid once and never billed again.",
+          "seed:bill-09 [auto_renewal] Perpetual software licences purchased outright do not require renewal.",
+          "seed:bill-09 [broad_content_license] Perpetual software licences purchased outright do not require renewal.",
+          "seed:priv-04 [data_sale_or_share] Profiles for children are never used for advertising and are not shared.",
+          "seed:priv-04 [data_sale_or_share] You can share a show link with a friend by text message.",
+          "seed:priv-09 [data_sale_or_share] We do not sell personal information as defined by applicable law.",
+          "seed:cont-07 [broad_content_license] Buyers receive a license to your design only after paying for it.",
+          "seed:cont-08 [broad_content_license] The license we take to your review ends when you delete it.",
+          "seed:cont-09 [broad_content_license] Stickers are licensed to you for use inside Chatterbox only.",
+          "seed:cont-10 [broad_content_license] We take only the license needed to show your portfolio to visitors.",
+          "seed:cont-10 [broad_content_license] You can choose a licence for each artwork that visitors must follow."
+        ],
+        "falseNegatives": [
+          "seed:bill-06 [auto_renewal] You must give at least 60 days notice before the end of the term to cancel your plan.",
+          "seed:cont-08 [broad_content_license] Reviews may be sublicensed to the businesses you review for use in their advertising.",
+          "seed:cont-09 [broad_content_license] The rights you grant in your messages are perpetual and may be sublicensed to our affiliates."
+        ],
+        "totals": {
+          "falsePositives": 12,
+          "falseNegatives": 3
+        }
+      }
+    },
+    {
+      "engine": "strict",
+      "attempted": 9,
+      "status": {
+        "complete": 9
+      },
+      "shares": null,
+      "coverageUnits": null,
+      "scores": {
+        "detection": {
+          "mode": "detection",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 2,
+              "fp": 0,
+              "fn": 2,
+              "support": 4,
+              "precision": 1,
+              "recall": 0.5,
+              "f1": 0.6666666666666666
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 0,
+              "fn": 4,
+              "support": 9,
+              "precision": 1,
+              "recall": 0.5555555555555556,
+              "f1": 0.7142857142857143
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 2,
+              "fp": 0,
+              "fn": 6,
+              "support": 8,
+              "precision": 1,
+              "recall": 0.25,
+              "f1": 0.4
+            }
+          ],
+          "micro": {
+            "tp": 9,
+            "fp": 0,
+            "fn": 12,
+            "support": 21,
+            "precision": 1,
+            "recall": 0.42857142857142855,
+            "f1": 0.6
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.4351851851851852,
+            "f1": 0.5936507936507937,
+            "definedCategories": 3
+          }
+        },
+        "exact": {
+          "mode": "exact",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 2,
+              "fp": 0,
+              "fn": 2,
+              "support": 4,
+              "precision": 1,
+              "recall": 0.5,
+              "f1": 0.6666666666666666
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 0,
+              "fn": 4,
+              "support": 9,
+              "precision": 1,
+              "recall": 0.5555555555555556,
+              "f1": 0.7142857142857143
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 2,
+              "fp": 0,
+              "fn": 6,
+              "support": 8,
+              "precision": 1,
+              "recall": 0.25,
+              "f1": 0.4
+            }
+          ],
+          "micro": {
+            "tp": 9,
+            "fp": 0,
+            "fn": 12,
+            "support": 21,
+            "precision": 1,
+            "recall": 0.42857142857142855,
+            "f1": 0.6
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.4351851851851852,
+            "f1": 0.5936507936507937,
+            "definedCategories": 3
+          }
+        },
+        "relaxed": {
+          "mode": "relaxed",
+          "perCategory": [
+            {
+              "categoryId": "arbitration",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "unilateral_change",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "liability_cap",
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "support": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            {
+              "categoryId": "data_sale_or_share",
+              "tp": 2,
+              "fp": 0,
+              "fn": 2,
+              "support": 4,
+              "precision": 1,
+              "recall": 0.5,
+              "f1": 0.6666666666666666
+            },
+            {
+              "categoryId": "auto_renewal",
+              "tp": 5,
+              "fp": 0,
+              "fn": 4,
+              "support": 9,
+              "precision": 1,
+              "recall": 0.5555555555555556,
+              "f1": 0.7142857142857143
+            },
+            {
+              "categoryId": "broad_content_license",
+              "tp": 2,
+              "fp": 0,
+              "fn": 6,
+              "support": 8,
+              "precision": 1,
+              "recall": 0.25,
+              "f1": 0.4
+            }
+          ],
+          "micro": {
+            "tp": 9,
+            "fp": 0,
+            "fn": 12,
+            "support": 21,
+            "precision": 1,
+            "recall": 0.42857142857142855,
+            "f1": 0.6
+          },
+          "macro": {
+            "precision": 1,
+            "recall": 0.4351851851851852,
+            "f1": 0.5936507936507937,
+            "definedCategories": 3
+          }
+        }
+      },
+      "detectionMicroF1Bootstrap95": {
+        "low": 0.4347826086956522,
+        "high": 0.7058823529411764,
+        "samples": 1000
+      },
+      "errorAudit": {
+        "falsePositives": [],
+        "falseNegatives": [
+          "seed:bill-06 [auto_renewal] You must give at least 60 days notice before the end of the term to cancel your plan.",
+          "seed:bill-06 [auto_renewal] We remind you by email two weeks before any renewal and you can turn renewal off in settings.",
+          "seed:bill-08 [auto_renewal] After the first year, your plan renews at the regular price instead of the promotional price.",
+          "seed:bill-09 [auto_renewal] We may adjust maintenance fees at renewal by up to the change in the consumer price index.",
+          "seed:priv-04 [data_sale_or_share] We share your viewing history with advertising partners to show you targeted ads on other sites.",
+          "seed:priv-09 [data_sale_or_share] Contact information of your users may be disclosed to our reseller partners.",
+          "seed:cont-07 [broad_content_license] You grant Penstroke an irrevocable license to use your designs in our marketing, with the right to sublicense those rights to agencies.",
+          "seed:cont-08 [broad_content_license] By submitting a review you grant us a perpetual and irrevocable license to use it in any media.",
+          "seed:cont-08 [broad_content_license] Reviews may be sublicensed to the businesses you review for use in their advertising.",
+          "seed:cont-09 [broad_content_license] The rights you grant in your messages are perpetual and may be sublicensed to our affiliates.",
+          "seed:cont-10 [broad_content_license] You grant us a worldwide, sublicensable license to reproduce the artwork in your portfolio.",
+          "seed:cont-10 [broad_content_license] Uploaded artwork may be used under the license you grant to fine-tune our AI style models."
+        ],
+        "totals": {
+          "falsePositives": 0,
+          "falseNegatives": 12
+        }
+      }
+    }
+  ]
+}

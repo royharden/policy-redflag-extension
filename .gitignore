@@ -6,3 +6,18 @@ dist-extension/
 !.env.example
 *.log
 .DS_Store
+
+# Local credentials and generated artifacts
+.creds/
+ArchiveManager-creds.txt
+*.pem
+*.key
+*.p12
+*.pfx
+*.zip
+.venv/
+coverage/
+.cache/
+
+# Reviewer-generated temporary model outputs (not acceptance evidence)
+/tests/acceptance/.rv-model-*/

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Policy Red Flag",
   "version": "0.2.0",
-  "description": "Flags six kinds of consumer red-flag clauses on a Terms or Privacy page you choose. Every finding shows its original quote. Not legal advice.",
+  "description": "Flags six kinds of red-flag clauses on a Terms or Privacy page, with original quotes. Not legal advice.",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
   "background": {
